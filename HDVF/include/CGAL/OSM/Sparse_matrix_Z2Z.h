@@ -93,7 +93,7 @@ public:
 protected:
 
 	/* \brief The inner chain storage. */
-	std::vector<Sparse_chain<Coefficient_ring, StorageFormat>> _chains;  // TODO : To Be Checked
+	std::vector<Sparse_chain_z2z<StorageFormat>> _chains;  // TODO : To Be Checked
 
 	/* \brief A bitboard containing state of each columns. */
 	Bitboard _chainsStates;
@@ -186,9 +186,9 @@ public:
             _chains.resize(otherToCopy._chains.size()) ;
             for (size_t i = 0; i<otherToCopy._chains.size(); ++i)
             {
-                const Sparse_chain<CoefficientRing, CTF>& tmp(otherToCopy._chains.at(i)) ;
-                Sparse_chain<CoefficientRing,StorageFormat> res(tmp.dimension()) ;
-                for (typename Sparse_chain<CoefficientRing, CTF>::const_iterator it = tmp.cbegin(); it != tmp.cend(); ++it)
+                const Sparse_chain_z2z<CTF>& tmp(otherToCopy._chains.at(i)) ;
+                Sparse_chain_z2z<StorageFormat> res(tmp.dimension()) ;
+                for (typename Sparse_chain_z2z<CTF>::const_iterator it = tmp.cbegin(); it != tmp.cend(); ++it)
                 {
                     res[it->first] = it->second ;
                 }
@@ -391,28 +391,24 @@ public:
      *
      * \brief Writes a sparse COLUMN matrix to a stream.
      */
-    template <typename _CT>
     friend std::ostream& write_matrix (const Sparse_matrix_z2z<OSM::COLUMN>& M, std::ostream& out);
 
     /** \relates Sparse_matrix_z2z
      *
      * \brief Writes a sparse ROW matrix to a stream.
      */
-    template <typename _CT>
     friend std::ostream& write_matrix (const Sparse_matrix_z2z<OSM::ROW>& M, std::ostream& out);
 
     /** \relates Sparse_matrix_z2z
      *
      * \brief Writes a sparse COLUMN matrix to a file.
      */
-    template <typename _CT>
     friend void write_matrix (const Sparse_matrix_z2z<OSM::COLUMN>& M, std::string filename);
 
     /** \relates Sparse_matrix_z2z
      *
      * \brief Writes a sparse ROW matrix to a file.
      */
-    template <typename _CT>
     friend void write_matrix (const Sparse_matrix_z2z<OSM::ROW>& M, std::string filename);
 
     /** @} */
@@ -432,28 +428,24 @@ public:
      *
      * \brief Reads a sparse COLUMN matrix from a stream.
      */
-    template <typename _CT>
     friend std::istream& read_matrix (Sparse_matrix_z2z<OSM::COLUMN>& M, std::istream& in);
 
     /** \relates Sparse_matrix_z2z
      *
      * \brief Reads a sparse ROW matrix from a stream.
      */
-    template <typename _CT>
     friend std::istream& read_matrix (Sparse_matrix_z2z<OSM::ROW>& M, std::istream& in);
 
     /** \relates Sparse_matrix_z2z
      *
      * \brief Reads a sparse COLUMN matrix from a file.
      */
-    template <typename _CT>
     friend void read_matrix (Sparse_matrix_z2z<OSM::COLUMN>& M, std::string filename);
 
     /** \relates Sparse_matrix_z2z
      *
      * \brief Reads a sparse ROW matrix from a file.
      */
-    template <typename _CT>
     friend void read_matrix (Sparse_matrix_z2z<OSM::ROW>& M, std::string filename);
 
     /** @} */
@@ -513,8 +505,8 @@ public:
      *
      * \return A new matrix representing the result.
      */
-    template <typename _CT, int _CTF>
-    friend Sparse_matrix_z2z operator*(const _CT& lambda, const Sparse_matrix_z2z<_CTF> &matrix) {
+    template <int _CTF>
+    friend Sparse_matrix_z2z operator*(const CGAL::Z2& lambda, const Sparse_matrix_z2z<_CTF> &matrix) {
         Sparse_matrix_z2z newMatrix = matrix;
         newMatrix *= lambda;
 
@@ -557,29 +549,25 @@ public:
      *
      * \brief Matrix multiplication: COLUMN x COLUMN -> COLUMN
      */
-    template <typename _CT>
-    friend Sparse_matrix_z2z<COLUMN> operator*(const Sparse_matrix_z2z<COLUMN> &first, const Sparse_matrix<_CT, COLUMN> &second);
+    friend Sparse_matrix_z2z<COLUMN> operator*(const Sparse_matrix_z2z<COLUMN> &first, const Sparse_matrix_z2z<COLUMN> &second);
 
     /** \relates Sparse_matrix_z2z
      *
      * \brief Matrix multiplication: ROW x COLUMN -> COLUMN
      */
-    template <typename _CT>
-    friend Sparse_matrix_z2z<COLUMN> operator*(const Sparse_matrix_z2z<ROW> &first, const Sparse_matrix<_CT, COLUMN> &second);
+    friend Sparse_matrix_z2z<COLUMN> operator*(const Sparse_matrix_z2z<ROW> &first, const Sparse_matrix_z2z<COLUMN> &second);
 
     /** \relates Sparse_matrix_z2z
      *
      * \brief Matrix multiplication: COLUMN x ROW -> COLUMN
      */
-    template <typename _CT>
-    friend Sparse_matrix_z2z<COLUMN> operator*(const Sparse_matrix_z2z<COLUMN> &first, const Sparse_matrix<_CT, ROW> &second);
+    friend Sparse_matrix_z2z<COLUMN> operator*(const Sparse_matrix_z2z<COLUMN> &first, const Sparse_matrix_z2z<ROW> &second);
 
     /** \relates Sparse_matrix_z2z
      *
      * \brief Matrix multiplication: ROW x ROW -> COLUMN
      */
-    template <typename _CT>
-    friend Sparse_matrix_z2z<COLUMN> operator*(const Sparse_matrix_z2z<ROW> &first, const Sparse_matrix<_CT, ROW> &second);
+    friend Sparse_matrix_z2z<COLUMN> operator*(const Sparse_matrix_z2z<ROW> &first, const Sparse_matrix_z2z<ROW> &second);
 
     /** @} */
 
@@ -601,15 +589,13 @@ public:
      *
      * \brief Matrix/column chain multiplication: COLUMN matrix x COLUMN chain -> COLUMN chain.
      */
-    template <typename _CT>
-    friend Sparse_chain<_CT, COLUMN> operator*(const Sparse_matrix_z2z<COLUMN> &_matrix, const Sparse_chain<_CT, COLUMN> &_column);
+    friend Sparse_chain_z2z<COLUMN> operator*(const Sparse_matrix_z2z<COLUMN> &_matrix, const Sparse_chain_z2z<COLUMN> &_column);
 
     /** \relates Sparse_matrix_z2z
      *
      * \brief Matrix/column chain multiplication: ROW matrix x COLUMN chain -> COLUMN chain.
      */
-    template <typename _CT>
-    friend Sparse_chain<_CT, COLUMN> operator*(const Sparse_matrix_z2z<ROW> &_matrix, const Sparse_chain<_CT, COLUMN> &_column);
+    friend Sparse_chain_z2z<COLUMN> operator*(const Sparse_matrix_z2z<ROW> &_matrix, const Sparse_chain_z2z<COLUMN> &_column);
 
     /** @} */
 
@@ -631,15 +617,13 @@ public:
      *
      * \brief Row chain/matrix multiplication: ROW chain x COLUMN matrix -> ROW chain.
      */
-    template <typename _CT>
-    friend Sparse_chain<_CT, ROW> operator*(const Sparse_chain<_CT, ROW> &_row, const Sparse_matrix_z2z<ROW> &_matrix) ;
+    friend Sparse_chain_z2z<ROW> operator*(const Sparse_chain_z2z<ROW> &_row, const Sparse_matrix_z2z<ROW> &_matrix) ;
 
     /** \relates Sparse_matrix_z2z
      *
      * \brief Row chain/matrix multiplication: ROW chain x ROW matrix -> ROW chain.
      */
-    template <typename _CT>
-    friend Sparse_chain<_CT, ROW> operator*(const Sparse_chain<_CT, ROW> &_row, const Sparse_matrix_z2z<COLUMN> &_matrix) ;
+    friend Sparse_chain_z2z<ROW> operator*(const Sparse_chain_z2z<ROW> &_row, const Sparse_matrix_z2z<COLUMN> &_matrix) ;
 
     /** @} */
 
@@ -661,29 +645,25 @@ public:
      *
      * \brief matrix multiplication: COLUMN x COLUMN -> ROW
      */
-    template <typename _CT>
-    friend Sparse_matrix_z2z<ROW> operator%(const Sparse_matrix_z2z<COLUMN> &_first, const Sparse_matrix<_CT, COLUMN> &_second);
+    friend Sparse_matrix_z2z<ROW> operator%(const Sparse_matrix_z2z<COLUMN> &_first, const Sparse_matrix_z2z<COLUMN> &_second);
 
     /** \relates Sparse_matrix_z2z
      *
      * \brief matrix multiplication: ROW x COLUMN -> ROW
      */
-    template <typename _CT>
-    friend Sparse_matrix_z2z<ROW> operator%(const Sparse_matrix_z2z<ROW> &_first, const Sparse_matrix<_CT, COLUMN> &_second);
+    friend Sparse_matrix_z2z<ROW> operator%(const Sparse_matrix_z2z<ROW> &_first, const Sparse_matrix_z2z<COLUMN> &_second);
 
     /** \relates Sparse_matrix_z2z
      *
      * \brief matrix multiplication: COLUMN x ROW -> ROW
      */
-    template <typename _CT>
-    friend Sparse_matrix_z2z<ROW> operator%(const Sparse_matrix_z2z<COLUMN> &_first, const Sparse_matrix<_CT, ROW> &_second);
+    friend Sparse_matrix_z2z<ROW> operator%(const Sparse_matrix_z2z<COLUMN> &_first, const Sparse_matrix_z2z<ROW> &_second);
 
     /** \relates Sparse_matrix_z2z
      *
      * \brief matrix multiplication: ROW x ROW -> ROW
      */
-    template <typename _CT>
-    friend Sparse_matrix_z2z<ROW> operator%(const Sparse_matrix_z2z<ROW> &_first, const Sparse_matrix<_CT, ROW> &_second);
+    friend Sparse_matrix_z2z<ROW> operator%(const Sparse_matrix_z2z<ROW> &_first, const Sparse_matrix_z2z<ROW> &_second);
 
     /** @} */
 
@@ -726,15 +706,13 @@ public:
      *
      * \brief Matrices sum and assign: COLUMN += ROW.
      */
-    template <typename _CT>
-    friend Sparse_matrix_z2z<COLUMN>& operator+=(Sparse_matrix_z2z<COLUMN> &matrix, const Sparse_matrix<_CT, ROW> &other);
+    friend Sparse_matrix_z2z<COLUMN>& operator+=(Sparse_matrix_z2z<COLUMN> &matrix, const Sparse_matrix_z2z<ROW> &other);
 
     /** \relates Sparse_matrix_z2z
      *
      * \brief Matrices sum and assign: ROW += COLUMN.
      */
-    template <typename _CT>
-    friend Sparse_matrix_z2z<ROW>& operator+=(Sparse_matrix_z2z<ROW> &matrix, const Sparse_matrix<_CT, COLUMN> &other);
+    friend Sparse_matrix_z2z<ROW>& operator+=(Sparse_matrix_z2z<ROW> &matrix, const Sparse_matrix_z2z<COLUMN> &other);
 
     /** @} */
 
@@ -777,15 +755,13 @@ public:
      *
      * \brief Matrices subtraction and assign: COLUMN -= ROW.
      */
-    template <typename _CT>
-    friend Sparse_matrix_z2z<COLUMN>& operator-=(Sparse_matrix_z2z<COLUMN> &matrix, const Sparse_matrix<_CT, ROW> &other);
+    friend Sparse_matrix_z2z<COLUMN>& operator-=(Sparse_matrix_z2z<COLUMN> &matrix, const Sparse_matrix_z2z<ROW> &other);
 
     /** \relates Sparse_matrix_z2z
      *
      * \brief Matrices subtraction and assign: ROW -= COLUMN.
      */
-    template <typename _CT>
-    friend Sparse_matrix_z2z<ROW>& operator-=(Sparse_matrix_z2z<ROW> &matrix, const Sparse_matrix<_CT, COLUMN> &other);
+    friend Sparse_matrix_z2z<ROW>& operator-=(Sparse_matrix_z2z<ROW> &matrix, const Sparse_matrix_z2z<COLUMN> &other);
 
     /** @} */
 
@@ -846,29 +822,25 @@ public:
      *
      * \brief Matrix multiplication and assign: COLUMN *= COLUMN.
      */
-    template <typename _CT>
-    friend Sparse_matrix_z2z<COLUMN>& operator*=(Sparse_matrix_z2z<COLUMN> &matrix, const Sparse_matrix<_CT, COLUMN> &other);
+    friend Sparse_matrix_z2z<COLUMN>& operator*=(Sparse_matrix_z2z<COLUMN> &matrix, const Sparse_matrix_z2z<COLUMN> &other);
 
     /** \relates Sparse_matrix_z2z
      *
      * \brief Matrix multiplication and assign: ROW *= ROW.
      */
-    template <typename _CT>
-    friend Sparse_matrix_z2z<ROW>& operator*=(Sparse_matrix_z2z<ROW> &matrix, const Sparse_matrix<_CT, ROW> &other);
+    friend Sparse_matrix_z2z<ROW>& operator*=(Sparse_matrix_z2z<ROW> &matrix, const Sparse_matrix_z2z<ROW> &other);
 
     /** \relates Sparse_matrix_z2z
      *
      * \brief Matrix multiplication and assign: COLUMN *= ROW.
      */
-    template <typename _CT>
-    friend Sparse_matrix_z2z<COLUMN>& operator*=(Sparse_matrix_z2z<COLUMN> &matrix, const Sparse_matrix<_CT, ROW> &other);
+    friend Sparse_matrix_z2z<COLUMN>& operator*=(Sparse_matrix_z2z<COLUMN> &matrix, const Sparse_matrix_z2z<ROW> &other);
 
     /** \relates Sparse_matrix_z2z
      *
      * \brief Matrix multiplication and assign: ROW *= COLUMN.
      */
-    template <typename _CT>
-    friend Sparse_matrix_z2z<ROW>& operator*=(Sparse_matrix_z2z<ROW> &matrix, const Sparse_matrix<_CT, COLUMN> &other);
+    friend Sparse_matrix_z2z<ROW>& operator*=(Sparse_matrix_z2z<ROW> &matrix, const Sparse_matrix_z2z<COLUMN> &other);
 
     /** @} */
 
@@ -950,8 +922,8 @@ public:
      * \param j The column index.
      * \param d The value.
      */
-    template <typename _CT, int _CTF>
-    friend void set_coefficient(Sparse_matrix_z2z<_CTF>& matrix, size_t i, size_t j, const _CT d);
+    template <int _CTF>
+    friend void set_coefficient(Sparse_matrix_z2z<_CTF>& matrix, size_t i, size_t j, const CGAL::Z2 d);
 
 protected:
     // Protected method for get_coefficient
@@ -983,8 +955,8 @@ public:
      *
      * \return The value of the given coefficient.
      */
-    template <typename _CT, int _CTF>
-    friend _CT get_coefficient(const Sparse_matrix_z2z<_CTF>& matrix, size_t i, size_t j);
+    template <int _CTF>
+    friend CGAL::Z2 get_coefficient(const Sparse_matrix_z2z<_CTF>& matrix, size_t i, size_t j);
 
     /** \relates Sparse_matrix_z2z
      *
@@ -1006,15 +978,13 @@ public:
      *
      * \brief Gets a column from a COLUMN matrix.
      */
-    template <typename _CT>
-    friend Sparse_chain<_CT, COLUMN> get_column(const Sparse_matrix_z2z<COLUMN> &matrix,  size_t index);
+    friend Sparse_chain_z2z<COLUMN> get_column(const Sparse_matrix_z2z<COLUMN> &matrix,  size_t index);
 
     /** \relates Sparse_matrix_z2z
      *
      * \brief Gets a column from a ROW matrix.
      */
-    template <typename _CT>
-    friend Sparse_chain<_CT, COLUMN> get_column(const Sparse_matrix_z2z<ROW> &matrix,  size_t index);
+    friend Sparse_chain_z2z<COLUMN> get_column(const Sparse_matrix_z2z<ROW> &matrix,  size_t index);
 
     /** @} */
 
@@ -1129,15 +1099,13 @@ public:
      *
      * \brief Sets a row in a COLUMN matrix.
      */
-    template <typename _CT>
-    friend void set_row(Sparse_matrix_z2z<COLUMN> &matrix,  size_t index, const Sparse_chain<_CT, ROW> &row);
+    friend void set_row(Sparse_matrix_z2z<COLUMN> &matrix,  size_t index, const Sparse_chain_z2z<ROW> &row);
 
     /** \relates Sparse_matrix_z2z
      *
      * \brief Sets a row in a ROW matrix.
      */
-    template <typename _CT>
-    friend void set_row(Sparse_matrix_z2z<ROW> &matrix,  size_t index, const Sparse_chain<_CT, ROW> &row);
+    friend void set_row(Sparse_matrix_z2z<ROW> &matrix,  size_t index, const Sparse_chain_z2z<ROW> &row);
 
     /** @} */
 
@@ -1239,7 +1207,7 @@ public:
      *
      * \return A reference over the modified matrix.
      */
-    template <typename _CT, int _CTF>
+    template <int _CTF>
     friend Sparse_matrix_z2z<_CTF>& remove_column(Sparse_matrix_z2z<_CTF>& matrix, size_t index);
 
 protected:
@@ -1274,7 +1242,7 @@ public:
      *
      * \return A reference over the modified matrix.
      */
-    template <typename _CT, int _CTF>
+    template <int _CTF>
     friend Sparse_matrix_z2z<_CTF>& remove_row(Sparse_matrix_z2z<_CTF>& matrix, size_t index);
 
 protected:
@@ -1300,7 +1268,7 @@ public:
      *
      * \return A reference over the modified matrix.
      */
-    template <typename _CT, int _CTF>
+    template <int _CTF>
     friend Sparse_matrix_z2z<_CTF>& swap_rows(Sparse_matrix_z2z<_CTF>& matrix, size_t i, size_t j);
 
 protected:
@@ -1326,7 +1294,7 @@ public:
      *
      * \return A reference over the modified matrix.
      */
-    template <typename _CT, int _CTF>
+    template <int _CTF>
     friend Sparse_matrix_z2z<_CTF>& swap_columns(Sparse_matrix_z2z<_CTF>& matrix, size_t i, size_t j);
 
 protected:
@@ -1363,7 +1331,7 @@ public:
      *
      * \return The modified matrix representing the result.
      */
-    template <typename _CT, int _CTF>
+    template <int _CTF>
     friend Sparse_matrix_z2z<_CTF>& remove_coefficient(Sparse_matrix_z2z<_CTF>& matrix, size_t i, size_t j);
 
     /**
@@ -1434,8 +1402,8 @@ public:
 namespace CGAL {
 namespace OSM {
 
-template <typename _CT, int _CTF>
-Sparse_matrix_z2z<_CTF> operator*(const Sparse_matrix_z2z<_CTF> &matrix, const _CT& lambda){
+template <int _CTF>
+Sparse_matrix_z2z<_CTF> operator*(const Sparse_matrix_z2z<_CTF> &matrix, const CGAL::Z2& lambda){
     Sparse_matrix_z2z<_CTF> newMatrix = matrix;
     newMatrix *= lambda;
 
@@ -1445,13 +1413,12 @@ Sparse_matrix_z2z<_CTF> operator*(const Sparse_matrix_z2z<_CTF> &matrix, const _
 
 // Matrix-matrix multiplication
 // COLUMN x COLUMN -> COLUMN
-template <typename _CT>
-Sparse_matrix_z2z<COLUMN> operator*(const Sparse_matrix_z2z<COLUMN> &first, const Sparse_matrix<_CT, COLUMN> &second) {
+Sparse_matrix_z2z<COLUMN> operator*(const Sparse_matrix_z2z<COLUMN> &first, const Sparse_matrix_z2z<COLUMN> &second) {
     Sparse_matrix_z2z<COLUMN> res(first._size.first, second._size.second);
 
     // Perform col-col matrix multiplication with linear combination of columns.
     for (size_t index: second._chainsStates) {
-        Sparse_chain<_CT, COLUMN> column(first._size.first);
+        Sparse_chain_z2z<COLUMN> column(first._size.first);
 
         for (auto colRight: second._chains[index]) {
             if (first._chainsStates.is_on(colRight.first)) {
@@ -1467,13 +1434,12 @@ Sparse_matrix_z2z<COLUMN> operator*(const Sparse_matrix_z2z<COLUMN> &first, cons
 
 // Matrix-matrix multiplication
 // ROW x COLUMN -> COLUMN
-template <typename _CT>
-Sparse_matrix_z2z<COLUMN> operator*(const Sparse_matrix_z2z<ROW> &first, const Sparse_matrix<_CT, COLUMN> &second) {
+Sparse_matrix_z2z<COLUMN> operator*(const Sparse_matrix_z2z<ROW> &first, const Sparse_matrix_z2z<COLUMN> &second) {
     Sparse_matrix_z2z<COLUMN> res(first._size.first, second._size.second);
 
     // Perform row-col matrix multiplication with dot products.
     for (size_t colRight: second._chainsStates) {
-        Sparse_chain<_CT, COLUMN> column(first._size.first);
+        Sparse_chain_z2z<COLUMN> column(first._size.first);
 
         for (size_t rowLeft: first._chainsStates) {
             _CT coef = first._chains[rowLeft] * second._chains[colRight];
@@ -1490,8 +1456,7 @@ Sparse_matrix_z2z<COLUMN> operator*(const Sparse_matrix_z2z<ROW> &first, const S
 
 // Matrix-matrix multiplication
 // COLUMN x ROW -> COLUMN
-template <typename _CT>
-Sparse_matrix_z2z<COLUMN> operator*(const Sparse_matrix_z2z<COLUMN> &first, const Sparse_matrix<_CT, ROW> &second) {
+Sparse_matrix_z2z<COLUMN> operator*(const Sparse_matrix_z2z<COLUMN> &first, const Sparse_matrix_z2z<ROW> &second) {
     Sparse_matrix_z2z<COLUMN> res(first._size.first, second._size.second);
 
     // Perform row-col matrix multiplication with dot products.
@@ -1504,13 +1469,12 @@ Sparse_matrix_z2z<COLUMN> operator*(const Sparse_matrix_z2z<COLUMN> &first, cons
 
 // Matrix-matrix multiplication
 // ROW x ROW -> COLUMN
-template <typename _CT>
-Sparse_matrix_z2z<COLUMN> operator*(const Sparse_matrix_z2z<ROW> &first, const Sparse_matrix<_CT, ROW> &second) {
+Sparse_matrix_z2z<COLUMN> operator*(const Sparse_matrix_z2z<ROW> &first, const Sparse_matrix_z2z<ROW> &second) {
     Sparse_matrix_z2z<COLUMN> res(first._size.first, second._size.second);
 
     // Perform row-col matrix multiplication with dot products.
     for (size_t i = 0 ; i < second._size.second ; i++) {
-        Sparse_chain<_CT, COLUMN> column(first._size.first);
+        Sparse_chain_z2z<COLUMN> column(first._size.first);
 
         for (size_t rowLeft: first._chainsStates) {
             _CT coef = first._chains[rowLeft] * get_column(second, i);
@@ -1529,13 +1493,12 @@ Sparse_matrix_z2z<COLUMN> operator*(const Sparse_matrix_z2z<ROW> &first, const S
 
 // Matrix - column chain multiplication
 // COLUMN matrix
-template <typename _CT>
-Sparse_chain<_CT, COLUMN> operator*(const Sparse_matrix_z2z<COLUMN> &first, const Sparse_chain<_CT, COLUMN> &second)
+Sparse_chain_z2z<COLUMN> operator*(const Sparse_matrix_z2z<COLUMN> &first, const Sparse_chain_z2z<COLUMN> &second)
 {
     // Perform col-col matrix multiplication with linear combination of columns.
-    Sparse_chain<_CT, COLUMN> column(first._size.first);
+    Sparse_chain_z2z<COLUMN> column(first._size.first);
 
-    for (typename Sparse_chain<_CT, COLUMN>::const_iterator it = second.begin(); it != second.end(); ++it)
+    for (typename Sparse_chain_z2z<COLUMN>::const_iterator it = second.begin(); it != second.end(); ++it)
     {
         column += it->second * first._chains[it->first];
     }
@@ -1545,11 +1508,10 @@ Sparse_chain<_CT, COLUMN> operator*(const Sparse_matrix_z2z<COLUMN> &first, cons
 
 // Matrix - column chain multiplication
 // ROW matrix
-template <typename _CT>
-Sparse_chain<_CT, COLUMN> operator*(const Sparse_matrix_z2z<ROW> &first, const Sparse_chain<_CT, COLUMN> &second)
+Sparse_chain_z2z<COLUMN> operator*(const Sparse_matrix_z2z<ROW> &first, const Sparse_chain_z2z<COLUMN> &second)
 {
     // Perform row-col matrix multiplication with dots
-    Sparse_chain<_CT, COLUMN> column(first._size.first);
+    Sparse_chain_z2z<COLUMN> column(first._size.first);
 
     for (size_t index : first._chainsStates)
     {
@@ -1563,13 +1525,12 @@ Sparse_chain<_CT, COLUMN> operator*(const Sparse_matrix_z2z<ROW> &first, const S
 
 // Row chain - matrix multiplication
 // ROW matrix
-template <typename _CT>
-Sparse_chain<_CT, ROW> operator*(const Sparse_chain<_CT, ROW> &first, const Sparse_matrix_z2z<ROW> &second)
+Sparse_chain_z2z<ROW> operator*(const Sparse_chain<_CT, ROW> &first, const Sparse_matrix_z2z<ROW> &second)
 {
     // Perform row-row matrix multiplication with linear combination of rows.
-    Sparse_chain<_CT, ROW> row(second._size.second);
+    Sparse_chain_z2z<ROW> row(second._size.second);
 
-    for (typename Sparse_chain<_CT, ROW>::const_iterator it = first.begin(); it != first.end(); ++it)
+    for (typename Sparse_chain_z2z<ROW>::const_iterator it = first.begin(); it != first.end(); ++it)
     {
         row += it->second * second._chains[it->first];
     }
@@ -1579,11 +1540,10 @@ Sparse_chain<_CT, ROW> operator*(const Sparse_chain<_CT, ROW> &first, const Spar
 
 // Row chain - matrix multiplication
 // COLUMN matrix
-template <typename _CT>
-Sparse_chain<_CT, ROW> operator*(const Sparse_chain<_CT, ROW> &first, const Sparse_matrix_z2z<COLUMN> &second)
+Sparse_chain_z2z<ROW> operator*(const Sparse_chain_z2z<ROW> &first, const Sparse_matrix_z2z<COLUMN> &second)
 {
     // Perform row-col matrix multiplication with dots
-    Sparse_chain<_CT, ROW> row(second._size.second);
+    Sparse_chain_z2z<ROW> row(second._size.second);
 
     for (size_t index : second._chainsStates)
     {
@@ -1597,12 +1557,11 @@ Sparse_chain<_CT, ROW> operator*(const Sparse_chain<_CT, ROW> &first, const Spar
 
 // Matrix-matrix multiplication
 // COLUMN x COLUMN -> ROW
-template <typename _CT>
-Sparse_matrix_z2z<ROW> operator%(const Sparse_matrix_z2z<COLUMN> &first, const Sparse_matrix<_CT, COLUMN> &second) {
+Sparse_matrix_z2z<ROW> operator%(const Sparse_matrix_z2z<COLUMN> &first, const Sparse_matrix_z2z<COLUMN> &second) {
     Sparse_matrix_z2z<ROW> res(first._size.first, second._size.second);
 
     for (size_t i = 0 ; i < first._size.first ; i++) {
-        Sparse_chain<_CT, ROW> row(second._size.second);
+        Sparse_chain_z2z<ROW> row(second._size.second);
 
         for (size_t colRight: second._chainsStates) {
             _CT coef = get_row(first, i) * second._chains[colRight];
@@ -1621,13 +1580,12 @@ Sparse_matrix_z2z<ROW> operator%(const Sparse_matrix_z2z<COLUMN> &first, const S
 
 // Matrix-matrix multiplication
 // ROW x COLUMN -> ROW
-template <typename _CT>
-Sparse_matrix_z2z<ROW> operator%(const Sparse_matrix_z2z<ROW> &first, const Sparse_matrix<_CT, COLUMN> &second) {
+Sparse_matrix_z2z<ROW> operator%(const Sparse_matrix_z2z<ROW> &first, const Sparse_matrix_z2z<COLUMN> &second) {
     Sparse_matrix_z2z<ROW> res(first._size.first, second._size.second);
 
     // Perform row-col matrix multiplication with dot products.
     for (size_t rowLeft: first._chainsStates) {
-        Sparse_chain<_CT, ROW> row(second._size.second);
+        Sparse_chain_z2z<ROW> row(second._size.second);
 
         for (size_t colRight: second._chainsStates) {
             _CT coef = first._chains[rowLeft] * second._chains[colRight];
@@ -1644,8 +1602,7 @@ Sparse_matrix_z2z<ROW> operator%(const Sparse_matrix_z2z<ROW> &first, const Spar
 
 // Matrix-matrix multiplication
 // COLUMN x ROW -> ROW
-template <typename _CT>
-Sparse_matrix_z2z<ROW> operator%(const Sparse_matrix_z2z<COLUMN> &first, const Sparse_matrix<_CT, ROW> &second) {
+Sparse_matrix_z2z<ROW> operator%(const Sparse_matrix_z2z<COLUMN> &first, const Sparse_matrix_z2z<ROW> &second) {
     Sparse_matrix_z2z<ROW> res(first._size.first, second._size.second);
 
     // Perform row-col matrix multiplication with dot products.
@@ -1658,13 +1615,12 @@ Sparse_matrix_z2z<ROW> operator%(const Sparse_matrix_z2z<COLUMN> &first, const S
 
 // Matrix-matrix multiplication
 // ROW x ROW -> ROW
-template <typename _CT>
-Sparse_matrix_z2z<ROW> operator%(const Sparse_matrix_z2z<ROW> &first, const Sparse_matrix<_CT, ROW> &second) {
+Sparse_matrix_z2z<ROW> operator%(const Sparse_matrix_z2z<ROW> &first, const Sparse_matrix_z2z<ROW> &second) {
     Sparse_matrix_z2z<ROW> res(first._size.first, second._size.second);
 
     // Perform row-row matrix multiplication with linear combination of rows.
     for (size_t index: first._chainsStates) {
-        Sparse_chain<_CT, ROW> row(second._size.second);
+        Sparse_chain_z2z<ROW> row(second._size.second);
 
         for (auto colRight: first._chains[index]) {
             if (first._chainsStates.is_on(colRight.first)) {
@@ -1680,14 +1636,13 @@ Sparse_matrix_z2z<ROW> operator%(const Sparse_matrix_z2z<ROW> &first, const Spar
 
 // Matrices sum and assign
 // COLUMN += ROW
-template <typename _CT>
-Sparse_matrix_z2z<COLUMN>& operator+=(Sparse_matrix_z2z<COLUMN> &matrix, const Sparse_matrix<_CT, ROW> &other) {
+Sparse_matrix_z2z<COLUMN>& operator+=(Sparse_matrix_z2z<COLUMN> &matrix, const Sparse_matrix_z2z<ROW> &other) {
     if (matrix._size != other._size) {
         throw std::runtime_error("Matrices must be the same size.");
     }
 
     for (size_t index = 0 ; index < other._size.second ; index++) {
-        Sparse_chain<_CT, COLUMN> column = get_column(other, index);
+        Sparse_chain_z2z<COLUMN> column = get_column(other, index);
         if (!column.is_null()) {
             matrix._chainsStates |= index;
             matrix._chains[index] += get_column(other, index);
