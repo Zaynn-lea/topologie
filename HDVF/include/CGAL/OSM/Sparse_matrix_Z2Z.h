@@ -23,6 +23,7 @@
 #include <fstream>
 
 #include <CGAL/OSM/Bitboard.h>
+#include <CGAL/OSM/Sparse_chain_Z2Z.h>
 #include <CGAL/Z2.h> // TODO : Temporarly before making Sparse_chain_Z2Z
 
 // DEBUG : matrix output for SparseMatrices / no DEBUG : chain output for SparseMatrices
@@ -80,11 +81,11 @@ public:
 	/*!
 	 Type of chain associated to the matric
 	 */
-	typedef Sparse_chain<Coefficient_ring, StorageFormat> Matrix_chain; // TODO : To Be Checked
+	typedef Sparse_chain_z2z<StorageFormat> Matrix_chain; // TODO : To Be Checked
 
 	// Allow the Spres_matrix_z2z class to access iother templated Sparse_matrix_z2z private emmbers
 	template <typename _CT, int _CTF> // TODO ?
-	friend class Sparse_matrix_z2z;
+	friend class Sparse_matrix_z2z; // TODO : check if we have to add Sparse_amtrix classic as a firend
 
 protected:
 
@@ -128,7 +129,7 @@ public:
 	* Create an empty matrix of type `StorageFormat` with coefficients of type `CoefficientRing`.
 	* The default matrix size is 0x0.
 	*/
-	Sparse_matrix() {
+	Sparse_matrix_z2z() {
 		_chains = std::vector<Matrix_chain>(0);
 		_chainsStates = Bitboard(0);
         	_size = {0, 0};
@@ -142,7 +143,7 @@ public:
      * \param rowCount The number of rows to preallocate.
      * \param columnCount The number of columns to preallocate.
      */
-    Sparse_matrix(const size_t rowCount, const size_t columnCount) {
+    Sparse_matrix_z2z(const size_t rowCount, const size_t columnCount) {
         size_t mainSize = StorageFormat == COLUMN ? columnCount : rowCount;
         size_t secondarySize = StorageFormat == COLUMN ? rowCount : columnCount;
 
@@ -162,7 +163,7 @@ public:
      *
      * \param dimensions A pair containing the number of rows and columns to preallocate.
      */
-    Sparse_matrix(const std::pair<size_t, size_t> dimensions) : Sparse_matrix(dimensions.first, dimensions.second) {}
+    Sparse_matrix_z2z(const std::pair<size_t, size_t> dimensions) : Sparse_matrix(dimensions.first, dimensions.second) {}
 
     /**
      * \brief Copy constructor.
@@ -173,7 +174,7 @@ public:
      * \param otherToCopy The matrix copied.
      */
     template <int CTF>
-    Sparse_matrix(const Sparse_matrix<CoefficientRing,CTF> &otherToCopy) {
+    Sparse_matrix_z2z(const Sparse_matrix<CoefficientRing,CTF> &otherToCopy) {
         if (StorageFormat == CTF)
         {
             _chainsStates = otherToCopy._chainsStates;
