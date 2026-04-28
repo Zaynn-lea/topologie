@@ -11,13 +11,13 @@
 //                  Dalil Naamna <dalil.naamna@etu.univ-amu.fr>  
 //                  Léandre Gély <gely.leandre@gmail.com>
 
-#ifndef CGAL_OSM_SPARSE_CHAIN_H
-#define CGAL_OSM_SPARSE_CHAIN_H
+#ifndef CGAL_OSM_SPARSE_CHAIN_Z2Z_H
+#define CGAL_OSM_SPARSE_CHAIN_Z2Z_H
 
 #include <CGAL/license/HDVF.h>
 
 #include <CGAL/OSM/__base.h>
-#include <CGAL/OSM/Sparse_matrix.h>
+#include <CGAL/OSM/Sparse_matrix_Z2Z.h>
 #include <unordered_map>
 #include <vector>
 #include <iterator>
@@ -72,11 +72,11 @@ public:
     typedef typename std::unordered_map<size_t, CoefficientRing>::const_iterator const_iterator;
 
     // Allow the Sparse_matrix class to access other templated Sparse_matrix and
-    // Sparse_chain protected members.
-    template <typename _CT, int _CTF>
+    // Sparse_chain_z2z protected members.
+    template <int _CTF>
     friend class Sparse_chain_z2z; // TODO : CHECK if we need to add Sparse_chain classic as a friend
 
-    template <typename _CT, int _CTF>
+    template <int _CTF>
     friend class Sparse_matrix_z2z; // TODO : CHECK if we need to add Sparse_matrix classic as a friend
 
 protected:
@@ -115,9 +115,9 @@ public:
     /**
      * \brief Copy constructor.
      *
-     * \pre The chains have the same `CoefficientRing` and `StorageFormat`.
+     * \pre The chains have the same `StorageFormat`.
      */
-    Sparse_cha_z2zin(const Sparse_chain &otherToCopy)
+    Sparse_chain_z2z(const Sparse_chain_z2z &otherToCopy)
        : _upperBound(otherToCopy._upperBound),  _chainData(otherToCopy._chainData)
     {}
 
@@ -126,7 +126,7 @@ public:
      *
      * \pre Chains must have the same `CoefficientRing`.
      */
-    Sparse_chain_z2z& operator=(const Sparse_chain &otherToCopy) {
+    Sparse_chain_z2z& operator=(const Sparse_chain_z2z &otherToCopy) {
         _upperBound = otherToCopy._upperBound;
         _chainData = otherToCopy._chainData;
 
@@ -149,7 +149,7 @@ public:
      *
      * \return A reference to the modified stream.
      */
-    friend std::ostream& operator<<(std::ostream &stream, const Sparse_chain &chain) {
+    friend std::ostream& operator<<(std::ostream &stream, const Sparse_chain_z2z &chain) {
         stream << "[";
         for (const_iterator i = chain._chainData.begin() ; i != chain._chainData.end() ; ++i) {
             stream << i->first << ": " << i->second << ", ";
@@ -179,14 +179,14 @@ public:
      * \brief Writes a sparse chain to a stream.
      */
     template <typename _CT, int _SF>
-    friend std::ostream& write_chain (const Sparse_chain<_CT, _SF>& chain, std::ostream& out);
+    friend std::ostream& write_chain (const Sparse_chain_z2z<_SF>& chain, std::ostream& out);
 
     /** \relates Sparse_chain
      *
      * \brief Writes a sparse chain to a file.
      */
     template <typename _CT, int _SF>
-    friend void write_chain (const Sparse_chain<_CT, _SF>& chain, std::string filename);
+    friend void write_chain (const Sparse_chain_z2z<_SF>& chain, std::string filename);
 
     /**
      * \relates Sparse_chain
@@ -241,12 +241,14 @@ public:
      *
      * \return A new chain representing the result.
      */
-    Sparse_chain operator+(const Sparse_chain &other) {
-        Sparse_chain newChain = *this;
+/*
+    Sparse_chain_z2z operator+(const Sparse_chain_z2z &other) {
+        Sparse_chain_z2z newChain = *this;
         newChain += other;
 
         return newChain;
-    } // TODO : test if we need to dublicate all operations
+    } // TODO : test if we need to dublicate all operations to make normal chains and Z2Z chians compatible
+*/
 
     /**
      * \brief Subtracts a chain from current chain.
@@ -262,8 +264,8 @@ public:
      *
      * \return A new chain representing the result.
      */
-    Sparse_chain operator-(const Sparse_chain &other) {
-        Sparse_chain newChain = *this;
+    Sparse_chain_z2z operator-(const Sparse_chain_z2z &other) {
+        Sparse_chain_z2z newChain = *this;
         newChain -= other;
 
         return newChain;
@@ -279,8 +281,8 @@ public:
      * \return A new chain representing the result.
      */
     template <int _CTF>
-    friend Sparse_chain operator*(const CoefficientRing& lambda, const Sparse_chain<CoefficientRing, _CTF> &chain) {
-        Sparse_chain newChain = chain;
+    friend Sparse_chain_z2z operator*(const CoefficientRing& lambda, const Sparse_chain<CoefficientRing, _CTF> &chain) {
+        Sparse_chain_z2z newChain = chain;
         newChain *= lambda;
 
         return newChain;
@@ -293,8 +295,8 @@ public:
      *
      * \return A new chain representing the result.
      */
-    Sparse_chain operator*(const CoefficientRing& lambda) {
-        Sparse_chain newChain = *this;
+    Sparse_chain_z2z operator*(const CoefficientRing& lambda) {
+        Sparse_chain_z2z newChain = *this;
         newChain *= lambda;
 
         return newChain;
@@ -315,8 +317,7 @@ public:
      *
      * \return The result of the matrix multiplication, column-based.
      */
-    template <typename _CT>
-    friend Sparse_matrix<_CT, COLUMN> operator*(const Sparse_chain<_CT, COLUMN>& column, const Sparse_chain<_CT, ROW>& row);
+    friend Sparse_matrix_z2z<COLUMN> operator*(const Sparse_chain_z2z<COLUMN>& column, const Sparse_chain_z2z<ROW>& row);
 
     /** \relates Sparse_chain
      *
@@ -333,8 +334,7 @@ public:
      *
      * \return The result of the matrix multiplication, row-based.
      */
-    template <typename _CT>
-    friend Sparse_matrix<_CT, ROW> operator%(const Sparse_chain<_CT, COLUMN> &column, const Sparse_chain<_CT, ROW> &row);
+    friend Sparse_matrix_z2z<ROW> operator%(const Sparse_chain_z2z<COLUMN> &column, const Sparse_chain_z2z<ROW> &row);
 
     /** \relates Sparse_chain
      *
@@ -349,8 +349,7 @@ public:
      *
      * \return The result of type CoefficientRing.
      */
-    template <typename _CT>
-    friend _CT operator*(const Sparse_chain<_CT, ROW> &row, const Sparse_chain<_CT, COLUMN> &column);
+    friend CGAL::Z2 operator*(const Sparse_chain_z2z<ROW> &row, const Sparse_chain_z2z<COLUMN> &column);
 
     /**
      * \brief Adds a chain to `this`.
@@ -366,7 +365,7 @@ public:
      *
      * \return The modified chain representing the result.
      */
-    Sparse_chain& operator+=(const Sparse_chain &other) {
+    Sparse_chain_z2z& operator+=(const Sparse_chain_z2z &other) {
         if (this->_upperBound != other._upperBound) {
             throw std::runtime_error("Chains must be the same size.");
         }
@@ -396,7 +395,7 @@ public:
      *
      * \return The modified chain representing the result.
      */
-    Sparse_chain& operator-=(const Sparse_chain &other) {
+    Sparse_chain_z2z& operator-=(const Sparse_chain_z2z &other) {
         if (this->_upperBound != other._upperBound) {
             throw std::runtime_error("Chains must be the same size.");
         }
@@ -421,7 +420,7 @@ public:
      *
      * \return The modified chain representing the result.
      */
-    Sparse_chain& operator*=(const CoefficientRing& lambda) {
+    Sparse_chain_z2z& operator*=(const CoefficientRing& lambda) {
         if (lambda == 0) {
             this->_chainData.clear();
             return *this;
@@ -526,8 +525,8 @@ public:
      *
      * \return A new chain representing the result.
      */
-    Sparse_chain operator/(const std::vector<size_t> &indices) {
-        Sparse_chain newChain = *this;
+    Sparse_chain_z2z operator/(const std::vector<size_t> &indices) {
+        Sparse_chain_z2z newChain = *this;
         newChain /= indices;
         return newChain;
     }
@@ -539,8 +538,8 @@ public:
      *
      * \param index The index to remove.
      */
-    Sparse_chain operator/(size_t index) {
-        Sparse_chain newChain = *this;
+    Sparse_chain_z2z operator/(size_t index) {
+        Sparse_chain_z2z newChain = *this;
         newChain /= index;
         return newChain;
     }
@@ -556,7 +555,7 @@ public:
      *
      * \return Return a reference to the modified chain.
      */
-    Sparse_chain& operator/=(const std::vector<size_t> &indices) {
+    Sparse_chain_z2z& operator/=(const std::vector<size_t> &indices) {
         for (size_t index : indices) {
             this->_chainData.erase(index);
         }
@@ -575,7 +574,7 @@ public:
      *
      * \return Return a reference to the modified chain.
      */
-    Sparse_chain& operator/=(const size_t index) {
+    Sparse_chain_z2z& operator/=(const size_t index) {
         this->_chainData.erase(index);
 
         return *this;
@@ -715,37 +714,37 @@ private:
      * \brief Comparison of two `COLUMN` chains.
      */
     template <typename _CT>
-    friend bool operator==(const Sparse_chain<_CT, OSM::COLUMN>& chain, const Sparse_chain<_CT, OSM::COLUMN> &other);
+    friend bool operator==(const Sparse_chain_z2z<OSM::COLUMN>& chain, const Sparse_chain_z2z<OSM::COLUMN> &other);
 
     /** \relates Sparse_chain
      *
      * \brief Comparison of a `COLUMN`  and a `ROW` chain.
      */
     template <typename _CT>
-    friend bool operator==(const Sparse_chain<_CT, OSM::COLUMN>& chain, const Sparse_chain<_CT, OSM::ROW> &other);
+    friend bool operator==(const Sparse_chain_z2z<OSM::COLUMN>& chain, const Sparse_chain_z2z<OSM::ROW> &other);
 
     /** \relates Sparse_chain
      *
      * \brief Comparison of a `ROW` and a `COLUMN` chain.
      */
     template <typename _CT>
-    friend bool operator==(const Sparse_chain<_CT, OSM::ROW>& chain, const Sparse_chain<_CT, OSM::COLUMN> &other);
+    friend bool operator==(const Sparse_chain_z2z<OSM::ROW>& chain, const Sparse_chain_z2z<OSM::COLUMN> &other);
 
     /** \relates Sparse_chain
      *
      * \brief Comparison of two `ROW` chains.
      */
     template <typename _CT>
-    friend bool operator==(const Sparse_chain<_CT, OSM::ROW>& chain, const Sparse_chain<_CT, OSM::ROW> &other);
+    friend bool operator==(const Sparse_chain_z2z<OSM::ROW>& chain, const Sparse_chain_z2z<OSM::ROW> &other);
 };
 
 // COLUMN chain x ROW chain -> COLUMN matrix
 template <typename _CT>
-Sparse_matrix<_CT, COLUMN> operator*(const Sparse_chain<_CT, COLUMN> &column, const Sparse_chain<_CT, ROW> &row) {
-    Sparse_matrix<_CT, COLUMN> matrix(column._upperBound, row._upperBound);
+Sparse_matrix_z2z<COLUMN> operator*(const Sparse_chain_z2z<COLUMN> &column, const Sparse_chain_z2z<ROW> &row) {
+    Sparse_matrix_z2z<COLUMN> matrix(column._upperBound, row._upperBound);
 
     for (std::pair<size_t, _CT> pair : row._chainData) {
-        Sparse_chain<_CT, COLUMN> tmp(pair.second * column);
+        Sparse_chain_z2z<COLUMN> tmp(pair.second * column);
         CGAL::OSM::set_column(matrix, pair.first, tmp) ;
     }
 
@@ -754,11 +753,11 @@ Sparse_matrix<_CT, COLUMN> operator*(const Sparse_chain<_CT, COLUMN> &column, co
 
 // COLUMN chain x ROW chain -> ROW matrix
 template <typename _CT>
-Sparse_matrix<_CT, ROW> operator%(const Sparse_chain<_CT, COLUMN> &column, const Sparse_chain<_CT, ROW> &row) {
-    Sparse_matrix<_CT, ROW> matrix(column._upperBound, row._upperBound);
+Sparse_matrix_z2z<ROW> operator%(const Sparse_chain_z2z<COLUMN> &column, const Sparse_chain_z2z<ROW> &row) {
+    Sparse_matrix_z2z<ROW> matrix(column._upperBound, row._upperBound);
 
     for (std::pair<size_t, _CT> pair : column._chainData) {
-        Sparse_chain<_CT, ROW> tmp(row * pair.second);
+        Sparse_chain_z2z<ROW> tmp(row * pair.second);
         CGAL::OSM::set_row(matrix, pair.first, tmp);
     }
 
@@ -790,24 +789,24 @@ CoefficientRing operator*(const Sparse_chain<CoefficientRing, ROW> &row, const S
 
 //// Get a subchain from the chain and assign.
 //template <typename _CT, int _CTF>
-//Sparse_chain<_CT, _CTF> operator/(const Sparse_chain<_CT, _CTF> &chain, const std::vector<size_t> &indices) {
-//    Sparse_chain<_CT, _CTF> newChain = chain;
+//Sparse_chain_z2z<_CTF> operator/(const Sparse_chain_z2z<_CTF> &chain, const std::vector<size_t> &indices) {
+//    Sparse_chain_z2z<_CTF> newChain = chain;
 //    newChain /= indices;
 //    return newChain;
 //}
 //
 //// Get a subchain from the chain and assign.
 //template <typename _CT, int _CTF>
-//Sparse_chain<_CT, _CTF> operator/(const Sparse_chain<_CT, _CTF> &chain, size_t index) {
-//    Sparse_chain<_CT, _CTF> newChain = chain;
+//Sparse_chain_z2z<_CTF> operator/(const Sparse_chain_z2z<_CTF> &chain, size_t index) {
+//    Sparse_chain_z2z<_CTF> newChain = chain;
 //    newChain /= index;
 //    return newChain;
 //}
 
 template <typename _CT>
-bool operator==(const Sparse_chain<_CT, OSM::COLUMN>& chain, const Sparse_chain<_CT, OSM::COLUMN> &other)
+bool operator==(const Sparse_chain_z2z<OSM::COLUMN>& chain, const Sparse_chain_z2z<OSM::COLUMN> &other)
 {
-    typedef Sparse_chain<_CT, OSM::COLUMN> ChainType;
+    typedef Sparse_chain_z2z<OSM::COLUMN> ChainType;
     bool res = true ;
     // Check that chains have the same size
     res = res && (chain._upperBound == other._upperBound) ;
@@ -825,9 +824,9 @@ bool operator==(const Sparse_chain<_CT, OSM::COLUMN>& chain, const Sparse_chain<
 }
 
 template <typename _CT>
-bool operator==(const Sparse_chain<_CT, OSM::ROW>& chain, const Sparse_chain<_CT, OSM::ROW> &other)
+bool operator==(const Sparse_chain_z2z<OSM::ROW>& chain, const Sparse_chain_z2z<OSM::ROW> &other)
 {
-    typedef Sparse_chain<_CT, OSM::ROW> ChainType;
+    typedef Sparse_chain_z2z<OSM::ROW> ChainType;
     bool res = true ;
     // Check that chains have the same size
     res = res && (chain._upperBound == other._upperBound) ;
@@ -845,28 +844,28 @@ bool operator==(const Sparse_chain<_CT, OSM::ROW>& chain, const Sparse_chain<_CT
 }
 
 template <typename _CT>
-bool operator==(const Sparse_chain<_CT, OSM::COLUMN>& chain, const Sparse_chain<_CT, OSM::ROW> &other)
+bool operator==(const Sparse_chain_z2z<OSM::COLUMN>& chain, const Sparse_chain_z2z<OSM::ROW> &other)
 {
     return false;
 }
 
 template <typename _CT>
-bool operator==(const Sparse_chain<_CT, OSM::ROW>& chain, const Sparse_chain<_CT, OSM::COLUMN> &other)
+bool operator==(const Sparse_chain_z2z<OSM::ROW>& chain, const Sparse_chain_z2z<OSM::COLUMN> &other)
 {
     return false;
 }
 
 template <typename _CT, int _CTF>
-Sparse_chain<_CT, _CTF> operator*(const Sparse_chain<_CT, _CTF> &chain, const _CT& lambda) {
-    Sparse_chain newChain = chain;
+Sparse_chain_z2z<_CTF> operator*(const Sparse_chain_z2z<_CTF> &chain, const _CT& lambda) {
+    Sparse_chain_z2z newChain = chain;
     newChain *= lambda;
 
     return newChain;
 }
 
 template <typename _CT, int _SF>
-std::ostream& write_chain (const Sparse_chain<_CT, _SF>& chain, std::ostream& out) {
-    using Chain_type = Sparse_chain<_CT, _SF>;
+std::ostream& write_chain (const Sparse_chain_z2z<_SF>& chain, std::ostream& out) {
+    using Chain_type = Sparse_chain_z2z<_SF>;
     // Chain type : 0 for (COLUMN), 1 for (ROW)
     if (_SF == COLUMN)
         out << "0" << std::endl ;
@@ -885,7 +884,7 @@ std::ostream& write_chain (const Sparse_chain<_CT, _SF>& chain, std::ostream& ou
 
 
 template <typename _CT, int _SF>
-void write_chain (Sparse_chain<_CT, _SF> chain, std::string filename) {
+void write_chain (Sparse_chain_z2z<_SF> chain, std::string filename) {
     std::ofstream out ( filename, std::ios::out | std::ios::trunc);
     if ( not out . good () ) {
         std::cerr << "Out fatal Error:\n  " << filename << " not found.\n";
@@ -898,8 +897,8 @@ void write_chain (Sparse_chain<_CT, _SF> chain, std::string filename) {
 }
 
 template <typename _CT, int _SF>
-std::istream& read_chain (Sparse_chain<_CT, _SF>& chain, std::istream& in) {
-    using Chain_type = Sparse_chain<_CT, _SF>;
+std::istream& read_chain (Sparse_chain_z2z<_SF>& chain, std::istream& in) {
+    using Chain_type = Sparse_chain_z2z<_SF>;
 
     // Read and check type
     int type ;
@@ -928,7 +927,7 @@ std::istream& read_chain (Sparse_chain<_CT, _SF>& chain, std::istream& in) {
 
 
 template <typename _CT, int _SF>
-void read_chain (Sparse_chain<_CT, _SF>& chain, std::string filename) {
+void read_chain (Sparse_chain_z2z<_SF>& chain, std::string filename) {
     std::ifstream in ( filename );
     if ( not in . good () ) {
         std::cerr << "In fatal Error:\n  " << filename << " not found.\n";

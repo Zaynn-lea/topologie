@@ -33,8 +33,8 @@ namespace CGAL {
 namespace OSM {
 
 #ifndef DOXYGEN_RUNNING
-template <typename CoefficientRing, int StorageFormat> // TODO
-class Sparse_chain; // TODO
+// template <typename CoefficientRing, int StorageFormat> // TODO
+// class Sparse_chain; // TODO
 
 template <int StorageFormat> // TODO
 class Sparse_chain_z2z; // TODO
@@ -1442,7 +1442,7 @@ Sparse_matrix_z2z<COLUMN> operator*(const Sparse_matrix_z2z<ROW> &first, const S
         Sparse_chain_z2z<COLUMN> column(first._size.first);
 
         for (size_t rowLeft: first._chainsStates) {
-            _CT coef = first._chains[rowLeft] * second._chains[colRight];
+		CGAL::Z2 coef = first._chains[rowLeft] * second._chains[colRight];
             if (coef != 0) {
                 column.set_coefficient(rowLeft, coef);
             }
