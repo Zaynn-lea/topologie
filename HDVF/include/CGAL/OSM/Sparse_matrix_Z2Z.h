@@ -958,6 +958,64 @@ public:
     template <int _CTF>
     friend CGAL::Z2 get_coefficient(const Sparse_matrix_z2z<_CTF>& matrix, size_t i, size_t j);
 
+    /**
+     * \brief Sets a coefficient (named interface for SET operation).
+     *
+     * Fixes the value of the coefficient at row `i`, column `j`. A value of 0
+     * is equivalent to erase (the coefficient is removed from sparse storage).
+     *
+     * \param i The row index.
+     * \param j The column index.
+     * \param value The value to set (0 or 1 in Z/2Z).
+     */
+    void set(size_t i, size_t j, Coefficient_ring value) {
+        set_coefficient(i, j, value);
+    }
+
+    /**
+     * \brief Gets a coefficient value (named interface for GET operation).
+     *
+     * Returns the value of the coefficient at row `i`, column `j`.
+     *
+     * \param i The row index.
+     * \param j The column index.
+     *
+     * \return The value of the coefficient at (i, j).
+     */
+    Coefficient_ring get(size_t i, size_t j) const {
+        return get_coefficient(i, j);
+    }
+
+    /**
+     * \brief Adds another matrix to this matrix in Z/2Z in place (named interface for ADD operation).
+     *
+     * Performs coefficient-wise XOR addition (canonical addition of Z/2Z).
+     * Modifies the current matrix in place. Coefficients that become 0 are
+     * removed to preserve the sparse representation.
+     *
+     * \pre Matrices must have the same dimensions.
+     *
+     * \param other The matrix to add.
+     *
+     * \return A reference to the modified matrix.
+     */
+    Sparse_matrix_z2z& add(const Sparse_matrix_z2z& other) {
+        return *this += other;
+    }
+
+    /**
+     * \brief Erases a coefficient (named interface for ERASE operation).
+     *
+     * Sets the coefficient at row `i`, column `j` to 0 and removes it from
+     * sparse storage. Equivalent to set(i, j, 0).
+     *
+     * \param i The row index.
+     * \param j The column index.
+     */
+    void erase(size_t i, size_t j) {
+        remove_coefficient(i, j);
+    }
+
     /** \relates Sparse_matrix_z2z
      *
      * \defgroup GetColumn Gets a column.
