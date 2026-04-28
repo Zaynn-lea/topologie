@@ -949,4 +949,4 @@ template <typename _CT, int _SF> void read_chain(Sparse_chain_z2z<_SF>& chain, s
 } /* end namespace OSM */
 } /* end namespace CGAL */
 
-#endif // CGAL_OSM_SPARSE_CHAIN_H
+#endif // CGAL_OSM_SPARSE_CHAIN_Z2Z_H
