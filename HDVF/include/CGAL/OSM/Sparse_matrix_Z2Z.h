@@ -308,28 +308,24 @@ public:
      *
      * \brief Comparison of two COLUMN matrices.
      */
-    template <typename _CT>
     friend bool operator==(const Sparse_matrix_z2z<OSM::COLUMN>& matrix, const Sparse_matrix_z2z<OSM::COLUMN> &other);
 
     /** \relates Sparse_matrix_z2z
      *
      * \brief Comparison of a COLUMN  and a ROW matrix.
      */
-    template <typename _CT>
     friend bool operator==(const Sparse_matrix_z2z<OSM::COLUMN>& matrix, const Sparse_matrix_z2z<OSM::ROW> &other);
 
     /** \relates Sparse_matrix_z2z
      *
      * \brief Comparison of a ROW and a COLUMN matrix.
      */
-    template <typename _CT>
     friend bool operator==(const Sparse_matrix_z2z<OSM::ROW>& matrix, const Sparse_matrix_z2z<OSM::COLUMN> &other);
 
     /** \relates Sparse_matrix_z2z
      *
      * \brief Comparison of two ROW matrices.
      */
-    template <typename _CT>
     friend bool operator==(const Sparse_matrix_z2z<OSM::ROW>& matrix, const Sparse_matrix_z2z<OSM::ROW> &other);
 
     /** @} */
