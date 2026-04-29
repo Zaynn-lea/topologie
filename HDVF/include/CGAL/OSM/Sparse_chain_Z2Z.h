@@ -52,9 +52,9 @@ namespace OSM {
  \tparam StorageFormat an integer constant encoding the storage format of matrices (`CGAL::OSM::COLUMN` or `CGAL::OSM::ROW`).
 */
 
-
+// A mettre après ...
 template <int StorageFormat>
-class Sparse_chain_z2 : public Sparse_chain_core<CGAL::Z2, StorageFormat> {
+class Sparse_chain_z2 : public Sparse_chain_z2_core<CGAL::Z2, StorageFormat> {
 
 };
 
@@ -62,7 +62,7 @@ template <typename _CT, int StorageFormat>
 class Sparse_chain_z2_core {
 public:
     /** \brief Base class. */
-    typedef Sparse_chain_z2z<StorageFormat> Base;
+    typedef Sparse_chain_z2_core<_CT, StorageFormat> Base;
 
     /*!  Type of the coefficient ring */
     
@@ -70,10 +70,10 @@ public:
     typedef CGAL::Z2 Coefficient_ring; // To not have to replace it everywhere
 
     /** \brief Type of COLUMN Sparse_matrix with Sparse_chain_z2z chains. */
-    typedef CGAL::OSM::Sparse_matrix<Coefficient_ring, OSM::COLUMN, Sparse_chain_z2z> Column_matrix;
+    typedef CGAL::OSM::Sparse_matrix<Coefficient_ring, OSM::COLUMN, Sparse_chain_z2_core> Column_matrix;
 
     /** \brief Type of ROW Sparse_matrix with Sparse_chain_z2z chains. */
-    typedef CGAL::OSM::Sparse_matrix<Coefficient_ring, OSM::ROW, Sparse_chain_z2z> Row_matrix;
+    typedef CGAL::OSM::Sparse_matrix<Coefficient_ring, OSM::ROW, Sparse_chain_z2_core> Row_matrix;
 
     /*!
      Type of chains iterators.
