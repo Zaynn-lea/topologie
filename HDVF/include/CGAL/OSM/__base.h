@@ -29,14 +29,14 @@ const int ROW    = 0b10;
 /** \brief The default type for signed integers. */
 typedef int ZCoefficient;
 
-// Class Sparse_matrix
-template <typename _CoefficientType = OSM::ZCoefficient, int _StorageFormat = OSM::COLUMN>
-class Sparse_matrix;
-
 // Class Sparse_chain
 
-template <typename _CoefficientType = OSM::ZCoefficient, int _StorageFormat = OSM::COLUMN>
+template <typename _CoefficientType, int _StorageFormat>
 class Sparse_chain;
+
+// Class Sparse_matrix
+template <typename _CoefficientType, int _StorageFormat, template <typename, int> typename ChainType>
+class Sparse_matrix;
 
 // Class Bitboard
 

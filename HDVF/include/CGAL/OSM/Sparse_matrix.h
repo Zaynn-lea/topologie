@@ -64,7 +64,7 @@ class Sparse_chain;
  \tparam StorageFormat an integer constant encoding the storage format of matrices (`OSM::COLUMN` or `OSM::ROW`).
  */
 
-template <typename CoefficientRing, int StorageFormat>
+template <typename CoefficientRing, int StorageFormat, template <typename, int> typename ChainType = OSM::Sparse_chain>
 class Sparse_matrix {
 
 public:
@@ -77,15 +77,15 @@ public:
     /*!
      Type of chains associated to the matrix.
      */
-    typedef Sparse_chain<CoefficientRing, StorageFormat> Matrix_chain;
+    typedef ChainType<CoefficientRing, StorageFormat> Matrix_chain;
 
     // Allow the Sparse_matrix class to access other templated Sparse_matrix private members.
-    template <typename _CT, int _CTF>
+    template <typename _CT, int _CTF, template <typename, int> typename _ChainType>
     friend class Sparse_matrix;
 
 protected:
     /* \brief The inner chain storage. */
-    std::vector<Sparse_chain<CoefficientRing, StorageFormat>> _chains;
+    std::vector<Matrix_chain> _chains;
 
     /* \brief A bitboard containing state of each columns. */
     Bitboard _chainsStates;
@@ -141,9 +141,9 @@ public:
         size_t mainSize = StorageFormat == COLUMN ? columnCount : rowCount;
         size_t secondarySize = StorageFormat == COLUMN ? rowCount : columnCount;
 
-        _chains = std::vector<Sparse_chain<CoefficientRing, StorageFormat>>(mainSize);
+        _chains = std::vector<Matrix_chain>(mainSize);
         for (size_t i = 0 ; i < mainSize ; i++) {
-            _chains[i] = Sparse_chain<CoefficientRing, StorageFormat>(secondarySize);
+            _chains[i] = Matrix_chain(secondarySize);
         }
 
         _chainsStates = Bitboard(mainSize);

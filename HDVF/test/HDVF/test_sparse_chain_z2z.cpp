@@ -5,15 +5,18 @@
 #include <ostream>
 #include <cassert>
 #include <CGAL/OSM/OSM.h>
+#include <CGAL/Z2.h>
+#include <CGAL/OSM/Sparse_chain_Z2Z.h>
 
-typedef CGAL::OSM::Sparse_chain_z2z<CGAL::OSM::COLUMN> Column_chain;
-typedef CGAL::OSM::Sparse_chain_z2z<CGAL::OSM::ROW> Row_chain ;
-typedef CGAL::OSM::Sparse_matrix_z2z<CGAL::OSM::COLUMN> Column_matrix;
-typedef CGAL::OSM::Sparse_matrix_z2z<CGAL::OSM::ROW> Row_matrix;
-
+typedef CGAL::Z2 Coefficient_ring;
+typedef CGAL::OSM::Sparse_chain_z2<CGAL::OSM::COLUMN> Column_chain;
+typedef CGAL::OSM::Sparse_chain_z2<CGAL::OSM::ROW> Row_chain ;
+typedef CGAL::OSM::Sparse_matrix<Coefficient_ring, CGAL::OSM::COLUMN, CGAL::OSM::Sparse_chain_z2_core> Column_matrix;
+typedef CGAL::OSM::Sparse_matrix<Coefficient_ring, CGAL::OSM::ROW, CGAL::OSM::Sparse_chain_z2_core> Row_matrix;
 
 int main(int argc, char **argv)
 {
+    CGAL::Z2 one(1), zero(0);
     Column_chain c1(5), c2(5), c3(5);
     Row_chain r1(5), r2(5), r3(5) ;
 
@@ -107,11 +110,9 @@ int main(int argc, char **argv)
     std::cerr << "-- Test Sparse_chain_z2z operator* (coefficient*chain)" << std::endl;
     {
         std::cerr << "----> Column chains" << std::endl;
-        Column_chain res(5);
-        res.set_coefficient(0, 3);
-        res.set_coefficient(2, -3);
-        bool comp_true(3*c1==res) ;
-        std::cerr << "Test 3*c1: " << comp_true << std::endl ;
+        Column_chain res(c1);
+        bool comp_true(Coefficient_ring(3)*c1==res) ;
+        std::cerr << "Test Z2(3)*c1: " << comp_true << std::endl ;
         assert(comp_true) ;
     }
     {
