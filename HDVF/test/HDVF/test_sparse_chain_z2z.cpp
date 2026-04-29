@@ -11,8 +11,8 @@
 typedef CGAL::Z2 Coefficient_ring;
 typedef CGAL::OSM::Sparse_chain_z2z<CGAL::OSM::COLUMN> Column_chain;
 typedef CGAL::OSM::Sparse_chain_z2z<CGAL::OSM::ROW> Row_chain ;
-typedef CGAL::OSM::Sparse_matrix<Coefficient_ring, CGAL::OSM::COLUMN, CGAL::OSM::Sparse_chain_z2z> Column_matrix;
-typedef CGAL::OSM::Sparse_matrix<Coefficient_ring, CGAL::OSM::ROW, CGAL::OSM::Sparse_chain_z2z> Row_matrix;
+typedef CGAL::OSM::Sparse_matrix<Coefficient_ring, CGAL::OSM::COLUMN, CGAL::OSM::Sparse_chain_core> Column_matrix;
+typedef CGAL::OSM::Sparse_matrix<Coefficient_ring, CGAL::OSM::ROW, CGAL::OSM::Sparse_chain_core> Row_matrix;
 
 int main(int argc, char **argv)
 {
