@@ -17,7 +17,7 @@
 #include <CGAL/license/HDVF.h>
 
 #include <CGAL/OSM/__base.h>
-#include <CGAL/OSM/Sparse_matrix_Z2Z.h>
+#include <CGAL/OSM/Sparse_chain_Z2Z.h>
 #include <unordered_map>
 #include <vector>
 #include <iterator>
@@ -106,7 +106,7 @@ public:
      *
      * \param chain_size The size of the sparse chain.
      */
-    Sparse_chain_z2z(const size_t chain_size)
+    Sparse_chain_z2z(size_t chain_size)
       : _upperBound(chain_size), _chainData()
     {}
 
@@ -713,29 +713,47 @@ private:
      *
      * \brief Comparison of two `COLUMN` chains.
      */
-    template <typename _CT>
-    friend bool operator==(const Sparse_chain_z2z<OSM::COLUMN>& chain, const Sparse_chain_z2z<OSM::COLUMN> &other);
+    friend inline bool operator==(const Sparse_chain_z2z<OSM::COLUMN>& chain, const Sparse_chain_z2z<OSM::COLUMN> &other) {
+        typedef Sparse_chain_z2z<OSM::COLUMN> ChainType;
+        bool res = true ;
+        // Check that chains have the same size
+        res = res && (chain._upperBound == other._upperBound) ;
+        // Check that each coefficient of chain also belongs to other
+        for (typename ChainType::const_iterator it = chain.begin(); res && (it != chain.end()); ++it)
+        {
+            res = res && (it->second == other.get_coefficient(it->first)) ;
+        }
+        // Check that each coefficient of other also belongs to chain
+        for (typename ChainType::const_iterator it = other.begin(); res && (it != other.end()); ++it)
+        {
+            res = res && (it->second == chain.get_coefficient(it->first)) ;
+        }
+        return res ;
+    }
 
     /** \relates Sparse_chain
      *
      * \brief Comparison of a `COLUMN`  and a `ROW` chain.
      */
-    template <typename _CT>
-    friend bool operator==(const Sparse_chain_z2z<OSM::COLUMN>& chain, const Sparse_chain_z2z<OSM::ROW> &other);
+    friend inline bool operator==(const Sparse_chain_z2z<OSM::COLUMN>& chain, const Sparse_chain_z2z<OSM::ROW> &other) {
+        return false;
+    }
 
     /** \relates Sparse_chain
      *
      * \brief Comparison of a `ROW` and a `COLUMN` chain.
      */
-    template <typename _CT>
-    friend bool operator==(const Sparse_chain_z2z<OSM::ROW>& chain, const Sparse_chain_z2z<OSM::COLUMN> &other);
+    friend inline bool operator==(const Sparse_chain_z2z<OSM::ROW>& chain, const Sparse_chain_z2z<OSM::COLUMN> &other) {
+        return false;
+    }
 
     /** \relates Sparse_chain
      *
      * \brief Comparison of two `ROW` chains.
      */
-    template <typename _CT>
-    friend bool operator==(const Sparse_chain_z2z<OSM::ROW>& chain, const Sparse_chain_z2z<OSM::ROW> &other);
+    friend inline bool operator==(const Sparse_chain_z2z<OSM::ROW>& chain, const Sparse_chain_z2z<OSM::ROW> &other) {
+        return chain.transpose() == other.transpose();
+    }
 };
 
 // COLUMN chain x ROW chain -> COLUMN matrix
@@ -803,57 +821,57 @@ CoefficientRing operator*(const Sparse_chain<CoefficientRing, ROW> &row, const S
 //    return newChain;
 //}
 
-template <typename _CT>
-bool operator==(const Sparse_chain_z2z<OSM::COLUMN>& chain, const Sparse_chain_z2z<OSM::COLUMN> &other)
-{
-    typedef Sparse_chain_z2z<OSM::COLUMN> ChainType;
-    bool res = true ;
-    // Check that chains have the same size
-    res = res && (chain._upperBound == other._upperBound) ;
-    // Check that each coefficient of chain also belongs to other
-    for (typename ChainType::const_iterator it = chain.begin(); res && (it != chain.end()); ++it)
-    {
-        res = res && (it->second == other.get_coefficient(it->first)) ;
-    }
-    // Check that each coefficient of other also belongs to chain
-    for (typename ChainType::const_iterator it = other.begin(); res && (it != other.end()); ++it)
-    {
-        res = res && (it->second == chain.get_coefficient(it->first)) ;
-    }
-    return res ;
-}
-
-template <typename _CT>
-bool operator==(const Sparse_chain_z2z<OSM::ROW>& chain, const Sparse_chain_z2z<OSM::ROW> &other)
-{
-    typedef Sparse_chain_z2z<OSM::ROW> ChainType;
-    bool res = true ;
-    // Check that chains have the same size
-    res = res && (chain._upperBound == other._upperBound) ;
-    // Check that each coefficient of chain also belongs to other
-    for (typename ChainType::const_iterator it = chain.begin(); (it != chain.end()) && res; ++it)
-    {
-        res = res && (it->second == other.get_coefficient(it->first)) ;
-    }
-    // Check that each coefficient of other also belongs to chain
-    for (typename ChainType::const_iterator it = other.begin(); res && (it != other.end()); ++it)
-    {
-        res = res && (it->second == chain.get_coefficient(it->first)) ;
-    }
-    return res ;
-}
-
-template <typename _CT>
-bool operator==(const Sparse_chain_z2z<OSM::COLUMN>& chain, const Sparse_chain_z2z<OSM::ROW> &other)
-{
-    return false;
-}
-
-template <typename _CT>
-bool operator==(const Sparse_chain_z2z<OSM::ROW>& chain, const Sparse_chain_z2z<OSM::COLUMN> &other)
-{
-    return false;
-}
+//template <typename _CT>
+//bool operator==(const Sparse_chain_z2z<OSM::COLUMN>& chain, const Sparse_chain_z2z<OSM::COLUMN> &other)
+//{
+//    typedef Sparse_chain_z2z<OSM::COLUMN> ChainType;
+//    bool res = true ;
+//    // Check that chains have the same size
+//    res = res && (chain._upperBound == other._upperBound) ;
+//    // Check that each coefficient of chain also belongs to other
+//    for (typename ChainType::const_iterator it = chain.begin(); res && (it != chain.end()); ++it)
+//    {
+//        res = res && (it->second == other.get_coefficient(it->first)) ;
+//    }
+//    // Check that each coefficient of other also belongs to chain
+//    for (typename ChainType::const_iterator it = other.begin(); res && (it != other.end()); ++it)
+//    {
+//        res = res && (it->second == chain.get_coefficient(it->first)) ;
+//    }
+//    return res ;
+//}
+//
+//template <typename _CT>
+//bool operator==(const Sparse_chain_z2z<OSM::ROW>& chain, const Sparse_chain_z2z<OSM::ROW> &other)
+//{
+//    typedef Sparse_chain_z2z<OSM::ROW> ChainType;
+//    bool res = true ;
+//    // Check that chains have the same size
+//    res = res && (chain._upperBound == other._upperBound) ;
+//    // Check that each coefficient of chain also belongs to other
+//    for (typename ChainType::const_iterator it = chain.begin(); (it != chain.end()) && res; ++it)
+//    {
+//        res = res && (it->second == other.get_coefficient(it->first)) ;
+//    }
+//    // Check that each coefficient of other also belongs to chain
+//    for (typename ChainType::const_iterator it = other.begin(); res && (it != other.end()); ++it)
+//    {
+//        res = res && (it->second == chain.get_coefficient(it->first)) ;
+//    }
+//    return res ;
+//}
+//
+//template <typename _CT>
+//bool operator==(const Sparse_chain_z2z<OSM::COLUMN>& chain, const Sparse_chain_z2z<OSM::ROW> &other)
+//{
+//    return false;
+//}
+//
+//template <typename _CT>
+//bool operator==(const Sparse_chain_z2z<OSM::ROW>& chain, const Sparse_chain_z2z<OSM::COLUMN> &other)
+//{
+//    return false;
+//}
 
 template <typename _CT, int _CTF>
 Sparse_chain_z2z<_CTF> operator*(const Sparse_chain_z2z<_CTF> &chain, const _CT& lambda) {

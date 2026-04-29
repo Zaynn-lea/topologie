@@ -70,7 +70,7 @@ public:
     template <typename _CT, int _CTF>
     friend class Sparse_chain;
 
-    template <typename _CT, int _CTF>
+    template <typename _CT, int _CTF, template <typename, int> typename _ChainType>
     friend class Sparse_matrix;
 
 protected:

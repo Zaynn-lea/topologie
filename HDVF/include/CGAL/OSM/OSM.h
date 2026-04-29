@@ -24,7 +24,5 @@
 #include <CGAL/OSM/__base.h>
 #include <CGAL/OSM/Sparse_chain.h>
 #include <CGAL/OSM/Sparse_matrix.h>
-#include <CGAL/OSM/Sparse_chain_Z2Z.h>
-#include <CGAL/OSM/Sparse_matrix_Z2Z.h>
 
 #endif // CGAL_OSM_OSM_H
