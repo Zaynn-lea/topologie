@@ -17,7 +17,7 @@
 #include <CGAL/license/HDVF.h>
 
 #include <CGAL/OSM/__base.h>
-#include <CGAL/OSM/Sparse_chain_Z2Z.h>
+// #include <CGAL/OSM/Sparse_chain_Z2Z.h>
 #include <unordered_map>
 #include <vector>
 #include <iterator>
@@ -285,7 +285,7 @@ public:
      * \return A new chain representing the result.
      */
     template <int _CTF>
-    friend Sparse_chain_z2_core operator*(const CoefficientRing& lambda, const Sparse_chain<CoefficientRing, _CTF> &chain) {
+    friend Sparse_chain_z2_core operator*(const CoefficientRing& lambda, const Sparse_chain_z2_core<CoefficientRing, _CTF> &chain) {
         Sparse_chain_z2_core newChain = chain;
         newChain *= lambda;
 
@@ -665,9 +665,8 @@ public:
      *
      * \return A new chain where the `StorageFormat` is changed.
      */
-    template <typename _CT>
-    Sparse_chain_z2_core<_CT, COLUMN + ROW - StorageFormat> transpose() const {
-        Sparse_chain_z2_core<_CT, COLUMN + ROW - StorageFormat> chain;
+    Sparse_chain_z2_core<CoefficientRing, COLUMN + ROW - StorageFormat> transpose() const {
+        Sparse_chain_z2_core<CoefficientRing, COLUMN + ROW - StorageFormat> chain;
 
         chain._upperBound = this->_upperBound;
         chain._chainData = this->_chainData;

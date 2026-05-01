@@ -127,7 +127,7 @@ int main(int argc, char **argv)
     {
         std::cerr << "----> Row chains" << std::endl;
         Row_chain res(5);
-        res.set_coefficient(0, oen);
+        res.set_coefficient(0, one);
         res.set_coefficient(2, one);
         bool comp_true(one*r1==res) ;
         std::cerr << "Test 3*r1: " << comp_true << std::endl ;
@@ -159,7 +159,7 @@ int main(int argc, char **argv)
         std::cerr << "----> Column chains" << std::endl;
         Column_chain res(c1), res2(5);
         res.set_coefficient(1, one);
-        bool comp_true(c1==(res/one)) ;
+        bool comp_true(c1==(res/1)) ;
         std::cerr << "Test c1 == res/1: " << comp_true << std::endl ;
         assert(comp_true) ;
         res2.set_coefficient(0, one);
@@ -172,7 +172,7 @@ int main(int argc, char **argv)
         std::cerr << "----> Row chains" << std::endl;
         Row_chain res(r1), res2(5);
         res.set_coefficient(1, one);
-        bool comp_true(r1==(res/one)) ;
+        bool comp_true(r1==(res/1)) ;
         std::cerr << "Test r1 == res/1: " << comp_true << std::endl ;
         assert(comp_true) ;
         res2.set_coefficient(0, one);
