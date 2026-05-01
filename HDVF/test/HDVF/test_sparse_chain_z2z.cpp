@@ -98,7 +98,7 @@ int main(int argc, char **argv)
     {
         std::cerr << "----> Column chains" << std::endl;
         Column_chain res(5);
-        res.set_coefficient(0, one);
+//        res.set_coefficient(0, one);
         res.set_coefficient(2, one);
         res.set_coefficient(1, one);
         bool comp_true(c1-c2==res) ;
@@ -108,7 +108,7 @@ int main(int argc, char **argv)
     {
         std::cerr << "----> Row chains" << std::endl;
         Row_chain res(5);
-        res.set_coefficient(0, one);
+ //       res.set_coefficient(0, one);
         res.set_coefficient(2, one);
         res.set_coefficient(1, one);
         bool comp_true(r1-r2==res) ;
