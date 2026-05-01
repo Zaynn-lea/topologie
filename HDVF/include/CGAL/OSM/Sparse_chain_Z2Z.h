@@ -741,11 +741,43 @@ private:
     friend bool operator==(const Sparse_chain_z2_core<_CT, OSM::ROW>& chain, const Sparse_chain_z2_core<_CT, OSM::ROW> &other);
 };
 
+
 // A mettre après ...
 template <int StorageFormat>
 class Sparse_chain_z2 : public Sparse_chain_z2_core<CGAL::Z2, StorageFormat> {
+public:
+    /**
+     * \brief Creates new empty sparse chain.
+     *
+     * Creates a sparse chain encoding an empty linear combination of cells.
+     */
+    Sparse_chain_z2()
+      : Sparse_chain_z2_core<CGAL::Z2, StorageFormat>()
+    {}
 
+    /**
+     * \brief Creates new empty sparse chain (i.e. zero-chain) of given size.
+     *
+     * Constructor with size, initializes an empty sparse chain encoding a linear combination of cells with all coefficients null.
+     *
+     * \param chain_size The size of the sparse chain.
+     */
+    Sparse_chain_z2(size_t chain_size)
+      : Sparse_chain_z2_core<CGAL::Z2, StorageFormat>(chain_size)
+    {}
+
+
+
+    /**
+     * \brief Copy constructor.
+     *
+     * \pre The chains have the same `StorageFormat`.
+     */
+    Sparse_chain_z2(const Sparse_chain_z2 &otherToCopy)
+       : Sparse_chain_z2_core<CGAL::Z2, StorageFormat>(otherToCopy)
+    {}
 };
+
 
 // COLUMN chain x ROW chain -> COLUMN matrix
 template <typename _CT>
