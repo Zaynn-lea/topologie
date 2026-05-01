@@ -433,10 +433,6 @@ public:
             return *this;
         }
 
-        for (pair pair: this->_chainData) {
-            this->_chainData[pair.first] = pair.second * lambda;
-        }
-
         return *this;
     }
 
