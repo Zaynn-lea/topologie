@@ -71,12 +71,12 @@ public:
     /*!
      Type of chains iterators.
      */
-    typedef typename std::unordered_map<size_t, CoefficientRing>::iterator iterator;
+    typedef typename std::unordered_set<size_t>::iterator iterator;
 
     /*!
      Type of chains constant iterators.
      */
-    typedef typename std::unordered_map<size_t, CoefficientRing>::const_iterator const_iterator;
+    typedef typename std::unordered_set<size_t>::const_iterator const_iterator;
 
     // Allow the Sparse_matrix class to access other templated Sparse_matrix and
     // Sparse_chain_z2_core protected members.
@@ -85,10 +85,10 @@ public:
 
 protected:
     /* \brief Type of data stored in the chain: map between indices and coefficients. */
-    typedef std::pair<size_t, CoefficientRing> pair;
+    typedef size_t pair;
 
     /* \brief The chain inner representation and storage of data. */
-    std::unordered_map<size_t, CoefficientRing> _chainData;
+    std::unordered_set<size_t> _chainData;
 
     /* \brief The chain boundary. */
     size_t _upperBound;
@@ -156,7 +156,7 @@ public:
     friend std::ostream& operator<<(std::ostream &stream, const Sparse_chain_z2_core &chain) {
         stream << "[";
         for (const_iterator i = chain._chainData.begin() ; i != chain._chainData.end() ; ++i) {
-            stream << i->first << ": " << i->second << ", ";
+            stream << *i << ": 1, ";
         }
 
         if (chain._chainData.size() > 0) {
@@ -377,13 +377,12 @@ public:
             throw std::runtime_error("Chains must be the same size.");
         }
 
-        for (pair pair: other._chainData) {
-            this->_chainData[pair.first] += pair.second;
-
-            if (this->_chainData[pair.first] == 0) {
-                this->_chainData.erase(pair.first);
-            }
-        }
+	for (pair pair : other._chainData) {
+            if (this->_chainData.find(pair) == this->_chainData.end())
+		this->_chainData.insert(pair);
+	    else
+		this->_chainData.erase(pair);
+	} 
 
         return *this;
     }
@@ -403,19 +402,8 @@ public:
      * \return The modified chain representing the result.
      */
     Sparse_chain_z2_core& operator-=(const Sparse_chain_z2_core &other) {
-        if (this->_upperBound != other._upperBound) {
-            throw std::runtime_error("Chains must be the same size.");
-        }
-
-        for (pair pair: other._chainData) {
-            this->_chainData[pair.first] -= pair.second;
-
-            if (this->_chainData[pair.first] == 0) {
-                this->_chainData.erase(pair.first);
-            }
-        }
-
-        return *this;
+	// in Z/2Z, the opperations + and - are equivalent
+	return *this += other;
     }
 
     /**
@@ -453,7 +441,7 @@ public:
         if (_chainData.find(index) == _chainData.end())
             return 0 ;
         else
-            return _chainData.at(index);
+            return 1 ;
     }
 
     /**
@@ -473,7 +461,7 @@ public:
         if (_chainData.find(index) == _chainData.end())
             return 0 ;
         else
-            return _chainData.at(index);
+            return 1 ;
     }
 
     /**
@@ -494,7 +482,7 @@ public:
         if (d == 0)
             *this /= index ;
         else
-            _chainData[index] = d ;
+	    _chainData.insert(index);
     }
 
     /**
@@ -504,7 +492,6 @@ public:
      * \return True if the data is null at given index.
      */
     const bool is_null(size_t index) const {
-        return _chainData.find(index) == _chainData.end();
     }
 
     /**
@@ -708,8 +695,12 @@ private:
         if (index >= _upperBound) {
             throw std::runtime_error("Provided index should be less than " + std::to_string(_upperBound) + ".");
         }
+	Coefficient_ring& zero(0), one(1);
 
-        return _chainData[index];
+	if (_chainData.find(index) == _chainData.end())
+            return zero ;
+	else
+	    return one ;
     }
 
     /** \relates Sparse_chain
@@ -854,12 +845,12 @@ inline bool operator==(const Sparse_chain_z2_core<_CT, OSM::COLUMN>& chain, cons
     // Check that each coefficient of chain also belongs to other
     for (typename ChainType::const_iterator it = chain.begin(); res && (it != chain.end()); ++it)
     {
-        res = res && (it->second == other.get_coefficient(it->first)) ;
+        res = res && (chain.get_coefficient(*it) == other.get_coefficient(*it)) ; 
     }
     // Check that each coefficient of other also belongs to chain
     for (typename ChainType::const_iterator it = other.begin(); res && (it != other.end()); ++it)
     {
-        res = res && (it->second == chain.get_coefficient(it->first)) ;
+	res = res && (chain.get_coefficient(*it) == other.get_coefficient(*it)) ;
     }
     return res ;
 }
@@ -904,7 +895,7 @@ std::ostream& write_chain (const Sparse_chain_z2_core<_CT, _SF>& chain, std::ost
     out << chain._chainData.size() << std::endl;
     // List of coefficients (1 by line: index coefficient)
     for(typename Chain_type::const_iterator it = chain.begin(); it != chain.end(); ++it) {
-        out << it->first << " " << it->second << std::endl;
+        out << *it << " 1" << std::endl;
     }
     return out;
 }
@@ -969,4 +960,4 @@ void read_chain (Sparse_chain_z2_core<_CT, _SF>& chain, std::string filename) {
 } /* end namespace OSM */
 } /* end namespace CGAL */
 
-#endif // CGAL_OSM_SPARSE_CHAIN_H
+#endif // CGAL_OSM_SPARSE_CHAIN_Z2Z_H
