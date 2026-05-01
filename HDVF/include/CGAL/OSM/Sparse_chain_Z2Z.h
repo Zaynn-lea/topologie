@@ -51,13 +51,6 @@ namespace OSM {
  \tparam CoefficientRing a model of the `IntegralDomainWithoutDivision` concept, providing the ring used to compute homology.
  \tparam StorageFormat an integer constant encoding the storage format of matrices (`CGAL::OSM::COLUMN` or `CGAL::OSM::ROW`).
 */
-
-// A mettre après ...
-template <int StorageFormat>
-class Sparse_chain_z2 : public Sparse_chain_z2_core<CGAL::Z2, StorageFormat> {
-
-};
-
 template <typename _CT, int StorageFormat>
 class Sparse_chain_z2_core {
 public:
@@ -742,6 +735,12 @@ private:
      * \brief Comparison of two `ROW` chains.
      */
     friend bool operator==(const Sparse_chain_z2z<OSM::ROW>& chain, const Sparse_chain_z2z<OSM::ROW> &other);
+};
+
+// A mettre après ...
+template <int StorageFormat>
+class Sparse_chain_z2 : public Sparse_chain_z2_core<CGAL::Z2, StorageFormat> {
+
 };
 
 // COLUMN chain x ROW chain -> COLUMN matrix
