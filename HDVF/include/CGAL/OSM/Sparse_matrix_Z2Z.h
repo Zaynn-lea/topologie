@@ -158,9 +158,9 @@ public:
     size_t mainSize = StorageFormat == COLUMN ? columnCount : rowCount;
     size_t secondarySize = StorageFormat == COLUMN ? rowCount : columnCount;
 
-    _chains = std::vector<Sparse_chain<CoefficientRing, StorageFormat>>(mainSize);
+    _chains = std::vector<Sparse_chain_z2z<StorageFormat>>(mainSize);
     for(size_t i = 0; i < mainSize; i++) {
-      _chains[i] = Sparse_chain<CoefficientRing, StorageFormat>(secondarySize);
+      _chains[i] = Sparse_chain_z2z<StorageFormat>(secondarySize);
     }
 
     _chainsStates = Bitboard(mainSize);
@@ -209,12 +209,12 @@ public:
       _chains.resize(vec_size);
       _chainsStates = OSM::Bitboard(vec_size);
       for(size_t i = 0; i < vec_size; ++i) {
-        _chains.at(i) = Sparse_chain<CoefficientRing, StorageFormat>(chain_size);
+        _chains.at(i) = Sparse_chain_z2z<StorageFormat>(chain_size);
       }
 
       for(size_t i = 0; i < otherToCopy._chains.size(); ++i) {
-        const Sparse_chain<CoefficientRing, CTF>& tmp(otherToCopy._chains.at(i));
-        for(typename Sparse_chain<CoefficientRing, CTF>::const_iterator it = tmp.cbegin(); it != tmp.cend(); ++it) {
+        const Sparse_chain_z2z<CTF>& tmp(otherToCopy._chains.at(i));
+        for(typename Sparse_chain_z2z<CTF>::const_iterator it = tmp.cbegin(); it != tmp.cend(); ++it) {
           _chains[it->first][i] = it->second;
           _chainsStates.set_on(it->first);
         }
@@ -301,28 +301,24 @@ public:
    *
    * \brief Comparison of two COLUMN matrices.
    */
-  template <typename _CT>
   friend bool operator==(const Sparse_matrix_z2z<OSM::COLUMN>& matrix, const Sparse_matrix_z2z<OSM::COLUMN>& other);
 
   /** \relates Sparse_matrix_z2z
    *
    * \brief Comparison of a COLUMN  and a ROW matrix.
    */
-  template <typename _CT>
   friend bool operator==(const Sparse_matrix_z2z<OSM::COLUMN>& matrix, const Sparse_matrix_z2z<OSM::ROW>& other);
 
   /** \relates Sparse_matrix_z2z
    *
    * \brief Comparison of a ROW and a COLUMN matrix.
    */
-  template <typename _CT>
   friend bool operator==(const Sparse_matrix_z2z<OSM::ROW>& matrix, const Sparse_matrix_z2z<OSM::COLUMN>& other);
 
   /** \relates Sparse_matrix_z2z
    *
    * \brief Comparison of two ROW matrices.
    */
-  template <typename _CT>
   friend bool operator==(const Sparse_matrix_z2z<OSM::ROW>& matrix, const Sparse_matrix_z2z<OSM::ROW>& other);
 
   /** @} */
@@ -1315,7 +1311,7 @@ public:
 protected:
   Sparse_matrix_z2z& swap_rows(size_t i, size_t j) {
     if(i != j) {
-      Sparse_chain<Coefficient_ring, ROW> ri(get_row(*this, i)), rj(get_row(*this, j));
+      Sparse_chain_z2z<ROW> ri(get_row(*this, i)), rj(get_row(*this, j));
       set_row(*this, i, rj);
       set_row(*this, j, ri);
     }
@@ -1341,7 +1337,7 @@ public:
 protected:
   Sparse_matrix_z2z& swap_columns(size_t i, size_t j) {
     if(i != j) {
-      Sparse_chain<Coefficient_ring, COLUMN> ci(get_column(*this, i)), cj(get_column(*this, j));
+      Sparse_chain_z2z<COLUMN> ci(get_column(*this, i)), cj(get_column(*this, j));
       set_column(*this, i, cj);
       set_column(*this, j, ci);
     }
@@ -1543,7 +1539,7 @@ Sparse_matrix_z2z<COLUMN> operator*(const Sparse_matrix_z2z<ROW>& first, const S
     Sparse_chain_z2z<COLUMN> column(first._size.first);
 
     for(size_t rowLeft : first._chainsStates) {
-      _CT coef = first._chains[rowLeft] * get_column(second, i);
+      CGAL::Z2 coef = first._chains[rowLeft] * get_column(second, i);
       if(coef != 0) {
         column.set_coefficient(rowLeft, coef);
       }
@@ -1577,7 +1573,7 @@ Sparse_chain_z2z<COLUMN> operator*(const Sparse_matrix_z2z<ROW>& first, const Sp
   Sparse_chain_z2z<COLUMN> column(first._size.first);
 
   for(size_t index : first._chainsStates) {
-    _CT tmp(first[index] * second);
+    CGAL::Z2 tmp(first[index] * second);
     if(tmp != 0)
       //            column[index] = tmp ;
       column.set_coefficient(index, tmp);
@@ -1587,7 +1583,7 @@ Sparse_chain_z2z<COLUMN> operator*(const Sparse_matrix_z2z<ROW>& first, const Sp
 
 // Row chain - matrix multiplication
 // ROW matrix
-Sparse_chain_z2z<ROW> operator*(const Sparse_chain<_CT, ROW>& first, const Sparse_matrix_z2z<ROW>& second) {
+Sparse_chain_z2z<ROW> operator*(const Sparse_chain_z2z<ROW>& first, const Sparse_matrix_z2z<ROW>& second) {
   // Perform row-row matrix multiplication with linear combination of rows.
   Sparse_chain_z2z<ROW> row(second._size.second);
 
@@ -1605,7 +1601,7 @@ Sparse_chain_z2z<ROW> operator*(const Sparse_chain_z2z<ROW>& first, const Sparse
   Sparse_chain_z2z<ROW> row(second._size.second);
 
   for(size_t index : second._chainsStates) {
-    _CT tmp(first * second[index]);
+    CGAL::Z2 tmp(first * second[index]);
     if(tmp != 0)
       //            row[index] = tmp ;
       row.set_coefficient(index, tmp);
@@ -1622,7 +1618,7 @@ Sparse_matrix_z2z<ROW> operator%(const Sparse_matrix_z2z<COLUMN>& first, const S
     Sparse_chain_z2z<ROW> row(second._size.second);
 
     for(size_t colRight : second._chainsStates) {
-      _CT coef = get_row(first, i) * second._chains[colRight];
+      CGAL::Z2 coef = get_row(first, i) * second._chains[colRight];
       if(coef != 0) {
         row.set_coefficient(colRight, coef);
       }
@@ -1646,7 +1642,7 @@ Sparse_matrix_z2z<ROW> operator%(const Sparse_matrix_z2z<ROW>& first, const Spar
     Sparse_chain_z2z<ROW> row(second._size.second);
 
     for(size_t colRight : second._chainsStates) {
-      _CT coef = first._chains[rowLeft] * second._chains[colRight];
+      CGAL::Z2 coef = first._chains[rowLeft] * second._chains[colRight];
       if(coef != 0) {
         row.set_coefficient(colRight, coef);
       }
@@ -1716,14 +1712,13 @@ Sparse_matrix_z2z<COLUMN>& operator+=(Sparse_matrix_z2z<COLUMN>& matrix, const S
 
 // Matrices sum and assign
 // ROW += COLUMN
-template <typename _CT>
-Sparse_matrix_z2z<ROW>& operator+=(Sparse_matrix_z2z<ROW>& matrix, const Sparse_matrix<_CT, COLUMN>& other) {
+Sparse_matrix_z2z<ROW>& operator+=(Sparse_matrix_z2z<ROW>& matrix, const Sparse_matrix_z2z<COLUMN>& other) {
   if(matrix._size != other._size) {
     throw std::runtime_error("Matrices must be the same size.");
   }
 
   for(size_t index = 0; index < other._size.first; index++) {
-    Sparse_chain<_CT, ROW> row = get_row(other, index);
+    Sparse_chain_z2z<ROW> row = get_row(other, index);
     if(!row.is_null()) {
       matrix._chainsStates |= index;
       matrix._chains[index] += get_row(other, index);
@@ -1739,14 +1734,13 @@ Sparse_matrix_z2z<ROW>& operator+=(Sparse_matrix_z2z<ROW>& matrix, const Sparse_
 
 // Matrices subtraction and assign
 // COLUMN -= ROW
-template <typename _CT>
-Sparse_matrix_z2z<COLUMN>& operator-=(Sparse_matrix_z2z<COLUMN>& matrix, const Sparse_matrix<_CT, ROW>& other) {
+Sparse_matrix_z2z<COLUMN>& operator-=(Sparse_matrix_z2z<COLUMN>& matrix, const Sparse_matrix_z2z<ROW>& other) {
   if(matrix._size != other._size) {
     throw std::runtime_error("Matrices must be the same size.");
   }
 
   for(size_t index = 0; index < other._size.second; index++) {
-    Sparse_chain<_CT, COLUMN> column = get_column(other, index);
+    Sparse_chain_z2z<COLUMN> column = get_column(other, index);
     if(!column.is_null()) {
       matrix._chainsStates |= index;
       matrix._chains[index] -= get_column(other, index);
@@ -1762,14 +1756,13 @@ Sparse_matrix_z2z<COLUMN>& operator-=(Sparse_matrix_z2z<COLUMN>& matrix, const S
 
 // Matrices subtraction and assign
 // ROW -= COLUMN
-template <typename _CT>
-Sparse_matrix_z2z<ROW>& operator-=(Sparse_matrix_z2z<ROW>& matrix, const Sparse_matrix<_CT, COLUMN>& other) {
+Sparse_matrix_z2z<ROW>& operator-=(Sparse_matrix_z2z<ROW>& matrix, const Sparse_matrix_z2z<COLUMN>& other) {
   if(matrix._size != other._size) {
     throw std::runtime_error("Matrices must be the same size.");
   }
 
   for(size_t index = 0; index < other._size.second; index++) {
-    Sparse_chain<_CT, ROW> row = get_row(other, index);
+    Sparse_chain_z2z<ROW> row = get_row(other, index);
     if(!row.is_null()) {
       matrix._chainsStates |= index;
       matrix._chains[index] -= get_row(other, index);
@@ -1784,45 +1777,41 @@ Sparse_matrix_z2z<ROW>& operator-=(Sparse_matrix_z2z<ROW>& matrix, const Sparse_
 }
 
 // matrix multiplication and assign
-// COLUMN += COLUMN
-template <typename _CT>
-Sparse_matrix_z2z<COLUMN>& operator*=(Sparse_matrix_z2z<COLUMN>& matrix, const Sparse_matrix<_CT, COLUMN>& other) {
+// COLUMN *= COLUMN
+Sparse_matrix_z2z<COLUMN>& operator*=(Sparse_matrix_z2z<COLUMN>& matrix, const Sparse_matrix_z2z<COLUMN>& other) {
   matrix = matrix * other;
   return matrix;
 }
 
 // matrix multiplication and assign
 // ROW *= ROW
-template <typename _CT>
-Sparse_matrix_z2z<ROW>& operator*=(Sparse_matrix_z2z<ROW>& matrix, const Sparse_matrix<_CT, ROW>& other) {
+Sparse_matrix_z2z<ROW>& operator*=(Sparse_matrix_z2z<ROW>& matrix, const Sparse_matrix_z2z<ROW>& other) {
   matrix = matrix % other;
   return matrix;
 }
 
 // matrix multiplication and assign
 // COLUMN *= ROW
-template <typename _CT>
-Sparse_matrix_z2z<COLUMN>& operator*=(Sparse_matrix_z2z<COLUMN>& matrix, const Sparse_matrix<_CT, ROW>& other) {
+Sparse_matrix_z2z<COLUMN>& operator*=(Sparse_matrix_z2z<COLUMN>& matrix, const Sparse_matrix_z2z<ROW>& other) {
   matrix = matrix * other;
   return matrix;
 }
 
 // matrix multiplication and assign
 // ROW *= COLUMN
-template <typename _CT>
-Sparse_matrix_z2z<ROW>& operator*=(Sparse_matrix_z2z<ROW>& matrix, const Sparse_matrix<_CT, COLUMN>& other) {
+Sparse_matrix_z2z<ROW>& operator*=(Sparse_matrix_z2z<ROW>& matrix, const Sparse_matrix_z2z<COLUMN>& other) {
   matrix = matrix % other;
   return matrix;
 }
 
 // Get column (in COLUMN matrix)
-template <typename _CT> Sparse_chain<_CT, COLUMN> get_column(const Sparse_matrix_z2z<COLUMN>& matrix, size_t index) {
+Sparse_chain_z2z<COLUMN> get_column(const Sparse_matrix_z2z<COLUMN>& matrix, size_t index) {
   return matrix._chains[index];
 }
 
 // Get column (in ROW matrix)
-template <typename _CT> Sparse_chain<_CT, COLUMN> get_column(const Sparse_matrix_z2z<ROW>& matrix, size_t index) {
-  Sparse_chain<_CT, COLUMN> column(matrix._size.first);
+Sparse_chain_z2z<COLUMN> get_column(const Sparse_matrix_z2z<ROW>& matrix, size_t index) {
+  Sparse_chain_z2z<COLUMN> column(matrix._size.first);
   if(matrix._size.first > 0) {
     for(size_t i : matrix._chainsStates) {
       if(!matrix._chains[i].is_null(index)) {
@@ -1835,28 +1824,22 @@ template <typename _CT> Sparse_chain<_CT, COLUMN> get_column(const Sparse_matrix
 }
 
 // Get row (in COLUMN matrix)
-/*
-Sparse_chain_z2z<ROW> get_row(const Sparse_matrix_z2z<COLUMN> &matrix,  size_t index) {
-    Sparse_chain_z2z<ROW> row(matrix._size.second);
-    if (matrix._size.second > 0)
-    {
-        for (size_t i : matrix._chainsStates) {
-            if (!matrix._chains[i].is_null(index)) {
-                row.set_coefficient(i, matrix._chains[i][index]);
-            }
-        }
+Sparse_chain_z2z<ROW> get_row(const Sparse_matrix_z2z<COLUMN>& matrix, size_t index) {
+  Sparse_chain_z2z<ROW> row(matrix._size.second);
+  if(matrix._size.second > 0) {
+    for(size_t i : matrix._chainsStates) {
+      if(!matrix._chains[i].is_null(index)) {
+        row.set_coefficient(i, matrix._chains[i][index]);
+      }
     }
-
-    return row;
+  }
+  return row;
 }
-*/ // TODO : check if needed or duplicate of the declaration around line 1041
 
-// Get row (in COLUMN matrix)
-/*
-Sparse_chain_z2z<ROW> get_row(const Sparse_matrix_z2z<ROW> &matrix,  size_t index) {
-    return matrix._chains[index];
+// Get row (in ROW matrix)
+Sparse_chain_z2z<ROW> get_row(const Sparse_matrix_z2z<ROW>& matrix, size_t index) {
+  return matrix._chains[index];
 }
-*/ // TODO : check if redondant w/ line 1047
 
 // Get constant reference over a column in a column-matrix
 const Sparse_chain_z2z<COLUMN>& cget_column(const Sparse_matrix_z2z<COLUMN>& matrix, size_t index) {
@@ -1884,8 +1867,7 @@ void set_column(Sparse_matrix_z2z<COLUMN>& matrix, size_t index, const Sparse_ch
 }
 
 // Set column in a ROW matrix
-template <typename _CT>
-void set_column(Sparse_matrix_z2z<ROW>& matrix, size_t index, const Sparse_chain<_CT, COLUMN>& chain) {
+void set_column(Sparse_matrix_z2z<ROW>& matrix, size_t index, const Sparse_chain_z2z<COLUMN>& chain) {
   if(matrix.dimensions().first != chain.dimension())
     throw std::runtime_error("set_column dimension error");
   for(size_t i = 0; i < matrix._size.first; i++) {
@@ -1905,8 +1887,7 @@ void set_column(Sparse_matrix_z2z<ROW>& matrix, size_t index, const Sparse_chain
 }
 
 // Set row in a COLUMN matrix
-template <typename _CT>
-void set_row(Sparse_matrix_z2z<COLUMN>& matrix, size_t index, const Sparse_chain<_CT, ROW>& chain) {
+void set_row(Sparse_matrix_z2z<COLUMN>& matrix, size_t index, const Sparse_chain_z2z<ROW>& chain) {
   if(matrix.dimensions().second != chain.dimension())
     throw("set_column dimension error");
   for(size_t i = 0; i < matrix._size.second; i++) {
@@ -1926,8 +1907,7 @@ void set_row(Sparse_matrix_z2z<COLUMN>& matrix, size_t index, const Sparse_chain
 }
 
 // Set row in a ROW matrix
-template <typename _CT>
-void set_row(Sparse_matrix_z2z<ROW>& matrix, size_t index, const Sparse_chain<_CT, ROW>& chain) {
+void set_row(Sparse_matrix_z2z<ROW>& matrix, size_t index, const Sparse_chain_z2z<ROW>& chain) {
   if(matrix.dimensions().second != chain.dimension())
     throw("set_column dimension error");
   matrix[index] = chain;
@@ -1935,45 +1915,45 @@ void set_row(Sparse_matrix_z2z<ROW>& matrix, size_t index, const Sparse_chain<_C
     matrix._chainsStates.set_off(index);
 }
 
-template <typename _CT, int _CTF>
-inline void set_coefficient(Sparse_matrix_z2z<_CTF>& matrix, size_t i, size_t j, const _CT d) {
+template <int _CTF>
+inline void set_coefficient(Sparse_matrix_z2z<_CTF>& matrix, size_t i, size_t j, const CGAL::Z2 d) {
   matrix.set_coefficient(i, j, d);
 }
 
-template <typename _CT, int _CTF>
-inline _CT get_coefficient(const Sparse_matrix_z2z<_CTF>& matrix, size_t i, size_t j) {
+template <int _CTF>
+inline CGAL::Z2 get_coefficient(const Sparse_matrix_z2z<_CTF>& matrix, size_t i, size_t j) {
   return matrix.get_coefficient(i, j);
 }
 
-template <typename _CT, int _CTF>
+template <int _CTF>
 inline Sparse_matrix_z2z<_CTF>& remove_column(Sparse_matrix_z2z<_CTF>& matrix, size_t index) {
   return matrix.remove_column(index);
 }
 
-template <typename _CT, int _CTF>
+template <int _CTF>
 inline Sparse_matrix_z2z<_CTF>& remove_row(Sparse_matrix_z2z<_CTF>& matrix, size_t index) {
   return matrix.remove_row(index);
 }
 
-template <typename _CT, int _CTF>
+template <int _CTF>
 inline Sparse_matrix_z2z<_CTF>& remove_coefficient(Sparse_matrix_z2z<_CTF>& matrix, size_t i, size_t j) {
   return matrix.remove_coefficient(i, j);
 }
 
-template <typename _CT, int _CTF>
+template <int _CTF>
 inline Sparse_matrix_z2z<_CTF>& swap_rows(Sparse_matrix_z2z<_CTF>& matrix, size_t i, size_t j) {
   return matrix.swap_rows(i, j);
 }
 
-template <typename _CT, int _CTF>
+template <int _CTF>
 inline Sparse_matrix_z2z<_CTF>& swap_columns(Sparse_matrix_z2z<_CTF>& matrix, size_t i, size_t j) {
   return matrix.swap_columns(i, j);
 }
 
-template <typename _CT> std::ostream& write_matrix(const Sparse_matrix_z2z<OSM::COLUMN>& M, std::ostream& out) {
-  typedef Sparse_chain<_CT, OSM::COLUMN> Column_chain;
+std::ostream& write_matrix(const Sparse_matrix_z2z<OSM::COLUMN>& M, std::ostream& out) {
+  typedef Sparse_chain_z2z<OSM::COLUMN> Column_chain;
   std::vector<size_t> vec_i, vec_j;
-  std::vector<_CT> vec_val;
+  std::vector<CGAL::Z2> vec_val;
   // Matrix type : 0 for (COLUMN), 1 for (ROW)
   out << "0" << std::endl;
   // Size : nb rows / nb cols
@@ -1996,10 +1976,10 @@ template <typename _CT> std::ostream& write_matrix(const Sparse_matrix_z2z<OSM::
   return out;
 }
 
-template <typename _CT> std::ostream& write_matrix(const Sparse_matrix_z2z<OSM::ROW>& M, std::ostream& out) {
-  typedef Sparse_chain<_CT, OSM::ROW> Row_chain;
+std::ostream& write_matrix(const Sparse_matrix_z2z<OSM::ROW>& M, std::ostream& out) {
+  typedef Sparse_chain_z2z<OSM::ROW> Row_chain;
   std::vector<size_t> vec_i, vec_j;
-  std::vector<_CT> vec_val;
+  std::vector<CGAL::Z2> vec_val;
   // Matrix type : 0 for (COLUMN), 1 for (ROW)
   out << "1" << std::endl;
   // Size : nb rows / nb cols
@@ -2022,7 +2002,7 @@ template <typename _CT> std::ostream& write_matrix(const Sparse_matrix_z2z<OSM::
   return out;
 }
 
-template <typename _CT> void write_matrix(const Sparse_matrix_z2z<OSM::COLUMN>& M, std::string filename) {
+void write_matrix(const Sparse_matrix_z2z<OSM::COLUMN>& M, std::string filename) {
   std::ofstream out(filename, std::ios::out | std::ios::trunc);
   if(not out.good()) {
     std::cerr << "Out fatal Error:\n  " << filename << " not found.\n";
@@ -2034,7 +2014,7 @@ template <typename _CT> void write_matrix(const Sparse_matrix_z2z<OSM::COLUMN>& 
   out.close();
 }
 
-template <typename _CT> void write_matrix(const Sparse_matrix_z2z<OSM::ROW>& M, std::string filename) {
+void write_matrix(const Sparse_matrix_z2z<OSM::ROW>& M, std::string filename) {
   std::ofstream out(filename, std::ios::out | std::ios::trunc);
   if(not out.good()) {
     std::cerr << "Out fatal Error:\n  " << filename << " not found.\n";
@@ -2046,7 +2026,7 @@ template <typename _CT> void write_matrix(const Sparse_matrix_z2z<OSM::ROW>& M, 
   out.close();
 }
 
-template <typename _CT> std::istream& read_matrix(Sparse_matrix_z2z<OSM::COLUMN>& M, std::istream& in) {
+std::istream& read_matrix(Sparse_matrix_z2z<OSM::COLUMN>& M, std::istream& in) {
   // Read and check type
   // Matrix type : 0 for (COLUMN), 1 for (ROW)
   int type;
@@ -2064,7 +2044,7 @@ template <typename _CT> std::istream& read_matrix(Sparse_matrix_z2z<OSM::COLUMN>
   in >> n;
   // Read all coefficients and load them into the matrix
   size_t i, j;
-  _CT val;
+  CGAL::Z2 val;
   for(size_t k = 0; k < n; ++k) {
     in >> i >> j;
     in >> val;
@@ -2073,7 +2053,7 @@ template <typename _CT> std::istream& read_matrix(Sparse_matrix_z2z<OSM::COLUMN>
   return in;
 }
 
-template <typename _CT> std::istream& read_matrix(Sparse_matrix_z2z<OSM::ROW>& M, std::istream& in) {
+std::istream& read_matrix(Sparse_matrix_z2z<OSM::ROW>& M, std::istream& in) {
   // Read and check type
   // Matrix type : 0 for (COLUMN), 1 for (ROW)
   int type;
@@ -2091,7 +2071,7 @@ template <typename _CT> std::istream& read_matrix(Sparse_matrix_z2z<OSM::ROW>& M
   in >> n;
   // Read all coefficients and load them into the matrix
   size_t i, j;
-  _CT val;
+  CGAL::Z2 val;
   for(size_t k = 0; k < n; ++k) {
     in >> i >> j;
     in >> val;
@@ -2100,7 +2080,7 @@ template <typename _CT> std::istream& read_matrix(Sparse_matrix_z2z<OSM::ROW>& M
   return in;
 }
 
-template <typename _CT> void read_matrix(Sparse_matrix_z2z<OSM::COLUMN>& M, std::string filename) {
+void read_matrix(Sparse_matrix_z2z<OSM::COLUMN>& M, std::string filename) {
   std::ifstream in_file(filename);
   if(not in_file.good()) {
     std::cerr << "Out fatal Error:\n  " << filename << " not found.\n";
@@ -2112,7 +2092,7 @@ template <typename _CT> void read_matrix(Sparse_matrix_z2z<OSM::COLUMN>& M, std:
   in_file.close();
 }
 
-template <typename _CT> void read_matrix(Sparse_matrix_z2z<OSM::ROW>& M, std::string filename) {
+void read_matrix(Sparse_matrix_z2z<OSM::ROW>& M, std::string filename) {
   std::ifstream in_file(filename);
   if(not in_file.good()) {
     std::cerr << "Out fatal Error:\n  " << filename << " not found.\n";
@@ -2124,9 +2104,8 @@ template <typename _CT> void read_matrix(Sparse_matrix_z2z<OSM::ROW>& M, std::st
   in_file.close();
 }
 
-template <typename _CT>
 bool operator==(const Sparse_matrix_z2z<OSM::COLUMN>& matrix, const Sparse_matrix_z2z<OSM::COLUMN>& other) {
-  typedef Sparse_chain<_CT, OSM::COLUMN> SparseChainType;
+  typedef Sparse_chain_z2z<OSM::COLUMN> SparseChainType;
   bool res = true;
   // Checks that sizes are similar
   res = res && (matrix._size == other._size);
@@ -2145,9 +2124,8 @@ bool operator==(const Sparse_matrix_z2z<OSM::COLUMN>& matrix, const Sparse_matri
   return res;
 }
 
-template <typename _CT>
 bool operator==(const Sparse_matrix_z2z<OSM::ROW>& matrix, const Sparse_matrix_z2z<OSM::ROW>& other) {
-  typedef Sparse_chain<_CT, OSM::ROW> SparseChainType;
+  typedef Sparse_chain_z2z<OSM::ROW> SparseChainType;
   bool res = true;
   // Checks that sizes are similar
   res = res && (matrix._size == other._size);
@@ -2166,12 +2144,10 @@ bool operator==(const Sparse_matrix_z2z<OSM::ROW>& matrix, const Sparse_matrix_z
   return res;
 }
 
-template <typename _CT>
 bool operator==(const Sparse_matrix_z2z<OSM::ROW>& matrix, const Sparse_matrix_z2z<OSM::COLUMN>& other) {
   return false;
 }
 
-template <typename _CT>
 bool operator==(const Sparse_matrix_z2z<OSM::COLUMN>& matrix, const Sparse_matrix_z2z<OSM::ROW>& other) {
   return false;
 }
