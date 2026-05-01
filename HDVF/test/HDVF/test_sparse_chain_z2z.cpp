@@ -8,9 +8,18 @@
 #include <CGAL/Z2.h>
 #include <CGAL/OSM/Sparse_chain_Z2Z.h>
 
+/*
 typedef CGAL::Z2 Coefficient_ring;
 typedef CGAL::OSM::Sparse_chain_z2<CGAL::OSM::COLUMN> Column_chain;
 typedef CGAL::OSM::Sparse_chain_z2<CGAL::OSM::ROW> Row_chain ;
+typedef CGAL::OSM::Sparse_matrix<Coefficient_ring, CGAL::OSM::COLUMN, CGAL::OSM::Sparse_chain_z2_core> Column_matrix;
+typedef CGAL::OSM::Sparse_matrix<Coefficient_ring, CGAL::OSM::ROW, CGAL::OSM::Sparse_chain_z2_core> Row_matrix;
+*/
+
+// temporarly :
+typedef CGAL::Z2 Coefficient_ring;
+typedef CGAL::OSM::Sparse_chain_z2_core<Coefficient_ring, CGAL::OSM::COLUMN> Column_chain;
+typedef CGAL::OSM::Sparse_chain_z2_core<Coefficient_ring, CGAL::OSM::ROW> Row_chain ;
 typedef CGAL::OSM::Sparse_matrix<Coefficient_ring, CGAL::OSM::COLUMN, CGAL::OSM::Sparse_chain_z2_core> Column_matrix;
 typedef CGAL::OSM::Sparse_matrix<Coefficient_ring, CGAL::OSM::ROW, CGAL::OSM::Sparse_chain_z2_core> Row_matrix;
 
@@ -20,19 +29,19 @@ int main(int argc, char **argv)
     Column_chain c1(5), c2(5), c3(5);
     Row_chain r1(5), r2(5), r3(5) ;
 
-    c1.set_coefficient(0, 1);
-    c1.set_coefficient(2, -1);
-    c2.set_coefficient(0, -1);
-    c2.set_coefficient(1, 1);
-    c3.set_coefficient(2, -1);
-    c3.set_coefficient(0, 1);
+    c1.set_coefficient(0, one);
+    c1.set_coefficient(2, one);
+    c2.set_coefficient(0, one);
+    c2.set_coefficient(1, one);
+    c3.set_coefficient(2, one);
+    c3.set_coefficient(0, one);
 
-    r1.set_coefficient(0, 1);
-    r1.set_coefficient(2, -1);
-    r2.set_coefficient(0, -1);
-    r2.set_coefficient(1, 1);
-    r3.set_coefficient(2, -1);
-    r3.set_coefficient(0, 1);
+    r1.set_coefficient(0, one);
+    r1.set_coefficient(2, one);
+    r2.set_coefficient(0, one);
+    r2.set_coefficient(1, one);
+    r3.set_coefficient(2, one);
+    r3.set_coefficient(0, one);
 
     std::cerr << "-- Test Sparse_chain_z2z operator==" << std::endl;
 
@@ -59,13 +68,13 @@ int main(int argc, char **argv)
     {
         std::cerr << "----> Column chains" << std::endl;
         Column_chain res(5), res2(4);
-        res.set_coefficient(2, -1);
-        res.set_coefficient(1, 1);
+        res.set_coefficient(2, one);
+        res.set_coefficient(1, one);
         bool comp_true(c1+c2==res) ;
         std::cerr << "Test c1+c2: " << comp_true << std::endl ;
         assert(comp_true) ;
-        res2.set_coefficient(2, -1);
-        res2.set_coefficient(1, 1);
+        res2.set_coefficient(2, one);
+        res2.set_coefficient(1, one);
         bool comp_false(c1+c2==res2) ;
         std::cerr << "Compare c1+c2 with invalid size chain: " << comp_false << std::endl ;
         assert(!comp_false) ;
@@ -73,13 +82,13 @@ int main(int argc, char **argv)
     {
         std::cerr << "----> Row chains" << std::endl;
         Row_chain res(5), res2(4);
-        res.set_coefficient(2, -1);
-        res.set_coefficient(1, 1);
+        res.set_coefficient(2, one);
+        res.set_coefficient(1, one);
         bool comp_true(r1+r2==res) ;
         std::cerr << "Test r1+r2: " << comp_true << std::endl ;
         assert(comp_true) ;
-        res2.set_coefficient(2, -1);
-        res2.set_coefficient(1, 1);
+        res2.set_coefficient(2, one);
+        res2.set_coefficient(1, one);
         bool comp_false(r1+r2==res2) ;
         std::cerr << "Compare r1+r2 with invalid size chain: " << comp_false << std::endl ;
         assert(!comp_false) ;
@@ -89,9 +98,9 @@ int main(int argc, char **argv)
     {
         std::cerr << "----> Column chains" << std::endl;
         Column_chain res(5);
-        res.set_coefficient(0, 2);
-        res.set_coefficient(2, -1);
-        res.set_coefficient(1, -1);
+        res.set_coefficient(0, one);
+        res.set_coefficient(2, one);
+        res.set_coefficient(1, one);
         bool comp_true(c1-c2==res) ;
         std::cerr << "Test c1-c2: " << comp_true << std::endl ;
         assert(comp_true) ;
@@ -99,9 +108,9 @@ int main(int argc, char **argv)
     {
         std::cerr << "----> Row chains" << std::endl;
         Row_chain res(5);
-        res.set_coefficient(0, 2);
-        res.set_coefficient(2, -1);
-        res.set_coefficient(1, -1);
+        res.set_coefficient(0, one);
+        res.set_coefficient(2, one);
+        res.set_coefficient(1, one);
         bool comp_true(r1-r2==res) ;
         std::cerr << "Test r1-r2: " << comp_true << std::endl ;
         assert(comp_true) ;
@@ -111,16 +120,16 @@ int main(int argc, char **argv)
     {
         std::cerr << "----> Column chains" << std::endl;
         Column_chain res(c1);
-        bool comp_true(Coefficient_ring(3)*c1==res) ;
-        std::cerr << "Test Z2(3)*c1: " << comp_true << std::endl ;
+        bool comp_true(one*c1==res) ;
+        std::cerr << "Test 1*c1: " << comp_true << std::endl ;
         assert(comp_true) ;
     }
     {
         std::cerr << "----> Row chains" << std::endl;
         Row_chain res(5);
-        res.set_coefficient(0, 3);
-        res.set_coefficient(2, -3);
-        bool comp_true(3*r1==res) ;
+        res.set_coefficient(0, oen);
+        res.set_coefficient(2, one);
+        bool comp_true(one*r1==res) ;
         std::cerr << "Test 3*r1: " << comp_true << std::endl ;
         assert(comp_true) ;
     }
@@ -129,18 +138,18 @@ int main(int argc, char **argv)
     {
         std::cerr << "----> Column chains" << std::endl;
         Column_chain res(5);
-        res.set_coefficient(0, 3);
-        res.set_coefficient(2, -3);
-        bool comp_true(c1*3==res) ;
+        res.set_coefficient(0, one);
+        res.set_coefficient(2, one);
+        bool comp_true(c1*one==res) ;
         std::cerr << "Test c1*3: " << comp_true << std::endl ;
         assert(comp_true) ;
     }
     {
         std::cerr << "----> Row chains" << std::endl;
         Row_chain res(5);
-        res.set_coefficient(0, 3);
-        res.set_coefficient(2, -3);
-        bool comp_true(r1*3==res) ;
+        res.set_coefficient(0, one);
+        res.set_coefficient(2, one);
+        bool comp_true(r1*one==res) ;
         std::cerr << "Test r1*3: " << comp_true << std::endl ;
         assert(comp_true) ;
     }
@@ -149,11 +158,11 @@ int main(int argc, char **argv)
     {
         std::cerr << "----> Column chains" << std::endl;
         Column_chain res(c1), res2(5);
-        res.set_coefficient(1, 3);
-        bool comp_true(c1==(res/1)) ;
+        res.set_coefficient(1, one);
+        bool comp_true(c1==(res/one)) ;
         std::cerr << "Test c1 == res/1: " << comp_true << std::endl ;
         assert(comp_true) ;
-        res2.set_coefficient(0, 1);
+        res2.set_coefficient(0, one);
         bool comp_true2(res2==(res/std::vector<size_t>({1,2}))) ;
         std::cerr << "Test res2 == res/{1,2}: " << comp_true2 << std::endl ;
         assert(comp_true2) ;
@@ -162,11 +171,11 @@ int main(int argc, char **argv)
     {
         std::cerr << "----> Row chains" << std::endl;
         Row_chain res(r1), res2(5);
-        res.set_coefficient(1, 3);
-        bool comp_true(r1==(res/1)) ;
+        res.set_coefficient(1, one);
+        bool comp_true(r1==(res/one)) ;
         std::cerr << "Test r1 == res/1: " << comp_true << std::endl ;
         assert(comp_true) ;
-        res2.set_coefficient(0, 1);
+        res2.set_coefficient(0, one);
         bool comp_true2(res2==(res/std::vector<size_t>({1,2}))) ;
         std::cerr << "Test res2 == res/{1,2}: " << comp_true2 << std::endl ;
         assert(comp_true2) ;
