@@ -695,7 +695,7 @@ private:
         if (index >= _upperBound) {
             throw std::runtime_error("Provided index should be less than " + std::to_string(_upperBound) + ".");
         }
-	Coefficient_ring& zero(0), one(1);
+	Coefficient_ring zero(0), one(1);
 
 	if (_chainData.find(index) == _chainData.end())
             return zero ;
