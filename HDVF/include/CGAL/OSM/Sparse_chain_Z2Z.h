@@ -377,12 +377,13 @@ public:
             throw std::runtime_error("Chains must be the same size.");
         }
 
-	for (pair pair : other._chainData) {
-            if (this->_chainData.find(pair) == this->_chainData.end())
-		this->_chainData.insert(pair);
-	    else
-		this->_chainData.erase(pair);
-	} 
+		// kept the sparse_chain (classic) naming
+		for (pair pair : other._chainData) {
+	        if (!this->_chainData.contains(pair))
+				this->_chainData.insert(pair);
+		    else
+				this->_chainData.erase(pair);
+		} 
 
         return *this;
     }
