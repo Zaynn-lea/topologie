@@ -84,9 +84,6 @@ public:
     friend class Sparse_chain_z2_core; // TODO : CHECK if we need to add Sparse_chain classic as a friend
 
 protected:
-    /* \brief Type of data stored in the chain: map between indices and coefficients. */
-    typedef size_t pair;
-
     /* \brief The chain inner representation and storage of data. */
     std::unordered_set<size_t> _chainData;
 
@@ -378,12 +375,12 @@ public:
         }
 
 		// kept the sparse_chain (classic) naming
-		for (pair pair : other._chainData) {
-	        if (!this->_chainData.contains(pair))
-				this->_chainData.insert(pair);
+		for (size_t i : other._chainData) {
+	        if ( this->_chainData.find(i) != this->_chainData.end())
+				this->_chainData.insert(i);
 		    else
-				this->_chainData.erase(pair);
-		} 
+				this->_chainData.erase(i);
+		}
 
         return *this;
     }
@@ -734,41 +731,43 @@ private:
 };
 
 
-// A mettre après ...
+
 template <int StorageFormat>
-class Sparse_chain_z2 : public Sparse_chain_z2_core<CGAL::Z2, StorageFormat> {
-public:
-    /**
-     * \brief Creates new empty sparse chain.
-     *
-     * Creates a sparse chain encoding an empty linear combination of cells.
-     */
-    Sparse_chain_z2()
-      : Sparse_chain_z2_core<CGAL::Z2, StorageFormat>()
-    {}
+using Sparse_chain_z2=Sparse_chain_z2_core<CGAL::Z2, StorageFormat>;
 
-    /**
-     * \brief Creates new empty sparse chain (i.e. zero-chain) of given size.
-     *
-     * Constructor with size, initializes an empty sparse chain encoding a linear combination of cells with all coefficients null.
-     *
-     * \param chain_size The size of the sparse chain.
-     */
-    Sparse_chain_z2(size_t chain_size)
-      : Sparse_chain_z2_core<CGAL::Z2, StorageFormat>(chain_size)
-    {}
-
-
-
-    /**
-     * \brief Copy constructor.
-     *
-     * \pre The chains have the same `StorageFormat`.
-     */
-    Sparse_chain_z2(const Sparse_chain_z2 &otherToCopy)
-       : Sparse_chain_z2_core<CGAL::Z2, StorageFormat>(otherToCopy)
-    {}
-};
+//class Sparse_chain_z2 : public Sparse_chain_z2_core<CGAL::Z2, StorageFormat> {
+//public:
+//    /**
+//     * \brief Creates new empty sparse chain.
+//     *
+//     * Creates a sparse chain encoding an empty linear combination of cells.
+//     */
+//    Sparse_chain_z2()
+//      : Sparse_chain_z2_core<CGAL::Z2, StorageFormat>()
+//    {}
+//
+//    /**
+//     * \brief Creates new empty sparse chain (i.e. zero-chain) of given size.
+//     *
+//     * Constructor with size, initializes an empty sparse chain encoding a linear combination of cells with all coefficients null.
+//     *
+//     * \param chain_size The size of the sparse chain.
+//     */
+//    Sparse_chain_z2(size_t chain_size)
+//      : Sparse_chain_z2_core<CGAL::Z2, StorageFormat>(chain_size)
+//    {}
+//
+//
+//
+//    /**
+//     * \brief Copy constructor.
+//     *
+//     * \pre The chains have the same `StorageFormat`.
+//     */
+//    Sparse_chain_z2(const Sparse_chain_z2 &otherToCopy)
+//       : Sparse_chain_z2_core<CGAL::Z2, StorageFormat>(otherToCopy)
+//    {}
+//};
 
 
 // COLUMN chain x ROW chain -> COLUMN matrix
